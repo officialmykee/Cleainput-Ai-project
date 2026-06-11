@@ -5,12 +5,10 @@
 #include <algorithm>
 #include <cstdint>
 
-// Direct, high-discipline AAB bundle archive asset alignment tool
 class LocalAabModifier {
 public:
-    // Scans a raw AAB buffer, finds the React Native JS bundle signature, and replaces its contents
     static bool OverwriteBundle(std::vector<char>& aabBuffer, const std::string& targetPath, const std::string& newJsCode) {
-        // Look for the targeted internal file path directly inside the ZIP allocation index
+        // Find the asset descriptor location path index inside the bundle binary matrix
         auto it = std::search(aabBuffer.begin(), aabBuffer.end(), targetPath.begin(), targetPath.end());
         
         if (it == aabBuffer.end()) {
@@ -20,17 +18,26 @@ public:
 
         size_t pathIndex = std::distance(aabBuffer.begin(), it);
         
-        // Step backwards to locate the Local File Header start block signature (0x04034b50)
+        // Scan backward to pinpoint the Zip Local File Header magic sequence signature base (0x04034b50)
         size_t headerStart = pathIndex;
+        bool foundHeader = false;
         while (headerStart > 4) {
-            if (aabBuffer[headerStart] == 0x50 && aabBuffer[headerStart+1] == 0x4B && 
-                aabBuffer[headerStart+2] == 0x03 && aabBuffer[headerStart+3] == 0x04) {
+            if (static_cast<unsigned char>(aabBuffer[headerStart]) == 0x50 && 
+                static_cast<unsigned char>(aabBuffer[headerStart+1]) == 0x4B && 
+                static_cast<unsigned char>(aabBuffer[headerStart+2]) == 0x03 && 
+                static_cast<unsigned char>(aabBuffer[headerStart+3]) == 0x04) {
+                foundHeader = true;
                 break;
             }
             headerStart--;
         }
 
-        // Read layout metadata offsets inside the ZIP header
+        if (!foundHeader) {
+            std::cerr << "Failed to locate local file header signature block boundary constraints." << std::endl;
+            return false;
+        }
+
+        // Map layout metadata sizing offsets out of standard ZIP allocations
         uint32_t* compressedSize = reinterpret_cast<uint32_t*>(&aabBuffer[headerStart + 18]);
         uint32_t* uncompressedSize = reinterpret_cast<uint32_t*>(&aabBuffer[headerStart + 22]);
         uint16_t fileNameLength = *reinterpret_cast<uint16_t*>(&aabBuffer[headerStart + 26]);
@@ -38,22 +45,23 @@ public:
 
         size_t dataStartOffset = headerStart + 30 + fileNameLength + extraFieldLength;
 
-        // Verify bounds constraint compliance against our pre-allocated shell template sector
+        // Bound-check constraints protection layer
         if (newJsCode.size() > *uncompressedSize) {
-            std::cerr << "New payload size exceeds pre-allocated shell master asset bounds." << std::endl;
+            std::cerr << "New payload size (" << newJsCode.size() 
+                      << " bytes) exceeds master template allocation layout bounds (" 
+                      << *uncompressedSize << " bytes)." << std::endl;
             return false;
         }
 
-        // Direct memory footprint injection onto the binary vector array
+        // Direct low-overhead byte footprint substitution
         std::copy(newJsCode.begin(), newJsCode.end(), aabBuffer.begin() + dataStartOffset);
 
-        // Clear remaining byte artifacts safely using empty space padding
+        // Blank out remaining space variations safely using space pads to avoid structural layout shift errors
         size_t remainingBytes = *uncompressedSize - newJsCode.size();
         std::fill_n(aabBuffer.begin() + dataStartOffset + newJsCode.size(), remainingBytes, ' ');
 
-        // Update descriptors to keep archive parsing perfectly operational
-        *compressedSize = static_cast<uint32_t>(newJsCode.size());
-        *uncompressedSize = static_cast<uint32_t>(newJsCode.size());
+        // Sync header parameters back down to system boundaries
+        *compressedSize = static_cast<uint32_t>(*uncompressedSize); 
 
         return true;
     }
@@ -61,7 +69,7 @@ public:
 
 int main(int argc, char* argv[]) {
     if (argc < 4) {
-        std::cerr << "Usage: ./injector <master.aab> <output.aab> <new_code_string>" << std::endl;
+        std::cerr << "Usage: ./aab_injector <master.aab> <output.aab> <new_code_string>" << std::endl;
         return 1;
     }
 
@@ -69,22 +77,31 @@ int main(int argc, char* argv[]) {
     std::string outputPath = argv[2];
     std::string newCode = argv[3];
 
-    // Read the master template AAB completely into RAM
     std::ifstream file(masterPath, std::ios::binary | std::ios::ate);
-    if (!file.is_open()) return 1;
+    if (!file.is_open()) {
+        std::cerr << "Error: Unable to load master template layout asset bundle file." << std::endl;
+        return 1;
+    }
     
     std::streamsize size = file.tellg();
     file.seekg(0, std::ios::beg);
     
     std::vector<char> buffer(size);
-    if (!file.read(buffer.data(), size)) return 1;
+    if (!file.read(buffer.data(), size)) {
+        std::cerr << "Error reading binary stream array footprint content structures." << std::endl;
+        return 1;
+    }
     file.close();
 
-    // Standard path target inside an Android App Bundle configuration
+    // Standard structural path variable identifier inside Android App Bundles
     std::string targetAsset = "base/assets/index.android.bundle";
+    
     if (LocalAabModifier::OverwriteBundle(buffer, targetAsset, newCode)) {
-        // Output stream writes down the completely operational app package instantly
         std::ofstream outFile(outputPath, std::ios::binary);
+        if (!outFile.is_open()) {
+            std::cerr << "Error outputting target binary asset." << std::endl;
+            return 1;
+        }
         outFile.write(buffer.data(), buffer.size());
         outFile.close();
         std::cout << "SUCCESS_AAB_ESTABLISHED" << std::endl;
@@ -93,4 +110,6 @@ int main(int argc, char* argv[]) {
 
     return 1;
 }
+
+
 
