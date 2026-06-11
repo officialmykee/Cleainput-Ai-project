@@ -1,35 +1,32 @@
-[project]
+[cerebrium.deployment]
 name = "cleaninput-ai-engine"
-version = "0.1.0"
+python_version = "3.11"
 
-[hardware]
-# Using highly optimized CPU/Lightweight instances for the asset injection 
-# to keep GPU concurrency strictly reserved for the LLM matrix operations.
-compute_type = "cpu" 
-cpu_count = 1
-memory = "2Gi"
+[cerebrium.hardware]
+# Provisioning a cost-efficient GPU to run the multimodal conversational layers
+compute = "TURING_T4"
+gpu_count = 1
+cpu = 4
+memory = 16.0
 
-[runtime]
-# We use a minimal linux base to avoid bloat and keep container startup times under 200ms
-provider = "linux"
-base_image = "ubuntu:22.04"
+[cerebrium.dependencies.pip]
+torch = ">=2.0.0"
+torchvision = ">=0.15.0"
+transformers = ">=4.41.0"
+accelerate = ">=0.30.0"
+pillow = ">=9.0.0"
+pydantic = ">=2.0.0"
 
-[dependencies]
-# Standard C++ build tools needed to compile our source code on deployment
-apt = [
-    "build-essential",
-    "cmake",
-    "g++"
-]
+[cerebrium.dependencies.apt]
+# Kept intact so Cerebrium has the tools to compile your native parser.cpp on startup
+build-essential = "latest"
+cmake = "latest"
+g++ = "latest"
 
-[scaling]
-# Extreme discipline constraints to maximize your 500-container limit
+[cerebrium.scaling]
+# Scaled to zero when inactive so you don't spend a single cent when nobody is chatting
 min_replicas = 0
 max_replicas = 500
-# Aggressive scale down: if a container is idle for 5 seconds, kill it immediately
-idle_timeout = 5 
-
-[logging]
-# Strict 1-day retention limit configuration
-retention_days = 1
+# If an instance sits idle for 10 seconds, shut it down immediately
+idle_timeout = 10
 
