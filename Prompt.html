@@ -420,8 +420,13 @@ async function submitUserPrompt() {
     var el = document.querySelector(".composer-input");
     var phraseIdx = 0, charIdx = 0, deleting = false, pauseTicks = 0;
     var PAUSE_TYPE = 28, PAUSE_DEL = 6;
+    var running = false;
+
     function tick() {
-        if (el.innerText.trim() !== "") return;
+        if (el.innerText.trim() !== "" || document.activeElement === el) {
+            running = false;
+            return;
+        }
         var phrase = phrases[phraseIdx];
         if (!deleting) {
             charIdx++;
@@ -437,11 +442,28 @@ async function submitUserPrompt() {
         }
         setTimeout(tick, deleting ? (pauseTicks > 0 ? 60 : 45) : 68);
     }
-    el.classList.add("tw-active");
-    el.setAttribute("data-tw", "");
-    setTimeout(tick, 400);
-    el.addEventListener("focus", function() { el.classList.remove("tw-active"); });
-    el.addEventListener("blur", function() { if (el.innerText.trim() === "") el.classList.add("tw-active"); });
+
+    function startTw() {
+        if (running) return;
+        running = true;
+        charIdx = 0; deleting = false; pauseTicks = 0;
+        el.setAttribute("data-tw", "");
+        el.classList.add("tw-active");
+        setTimeout(tick, 400);
+    }
+
+    el.addEventListener("focus", function() {
+        running = false;
+        el.classList.remove("tw-active");
+    });
+
+    el.addEventListener("blur", function() {
+        if (el.innerText.trim() === "") {
+            startTw();
+        }
+    });
+
+    startTw();
 })();
 
 function escapeHtml(str) {
