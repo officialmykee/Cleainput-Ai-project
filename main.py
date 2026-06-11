@@ -14,7 +14,34 @@ from pydantic import BaseModel
 from typing import Optional
 
 # =======================================================
-# BRAIN ARCHITECTURE WITH ATTENTION ANCHORS
+# 0. AUTOMATED GOOGLE BUNDLETOOL DOWNLOAD BYPASS MATRIX
+# =======================================================
+def ensure_bundletool_exists():
+    """
+    Bypasses GitHub's 25MB web upload limits by downloading the official 
+    Google bundletool compiler directly into the server runner on boot sequence.
+    """
+    target_path = "./bundletool.jar"
+    if not os.path.exists(target_path):
+        print("Bundletool binary footprint missing. Fetching directly from Google open-source releases...")
+        # Direct URL download pathway to stable Google bundletool v1.17.0 release binary
+        source_url = "https://github.com/google/bundletool/releases/download/1.17.0/bundletool-all-1.17.0.jar"
+        try:
+            req = urllib.request.Request(
+                source_url, 
+                headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
+            )
+            with urllib.request.urlopen(req) as response, open(target_path, 'wb') as out_file:
+                out_file.write(response.read())
+            print("Successfully initialized bundletool.jar into execution space.")
+        except Exception as e:
+            print(f"Critical Error initializing build tool chain from network node: {str(e)}")
+
+# Execute automated network fetch sequence right on container launch parameters
+ensure_bundletool_exists()
+
+# =======================================================
+# 1. BRAIN ARCHITECTURE WITH ATTENTION ANCHORS
 # =======================================================
 class CleanInputBrain(nn.Module):
     def __init__(self, vocab_size=5000, embedding_dim=256, hidden_dim=512):
@@ -109,7 +136,6 @@ def predict(request: RequestModel):
         with torch.no_grad():
             _ = custom_brain(image_tensor, text_tensor)
 
-        # Handle Standard Discussion / Chit-Chat
         if not is_compile_intent:
             response_msg = f"Strict Alignment Verification: Detected components {alignment_matrix['explicit_components'] or 'General Topic'}. "
             if has_image:
@@ -177,6 +203,4 @@ def predict(request: RequestModel):
 
     except Exception as e:
         return {"status": "error", "message": f"Google-style deployment pipeline crashed: {str(e)}"}
-
-
 
