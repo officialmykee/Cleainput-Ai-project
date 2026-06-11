@@ -3,30 +3,24 @@ name = "cleaninput-ai-engine"
 python_version = "3.11"
 
 [cerebrium.hardware]
-# Provisioning a cost-efficient GPU to run the multimodal conversational layers
-compute = "TURING_T4"
-gpu_count = 1
-cpu = 4
-memory = 16.0
+compute = "CPU"
+cpu = 2
+memory = 4.0
 
 [cerebrium.dependencies.pip]
 torch = ">=2.0.0"
 torchvision = ">=0.15.0"
-transformers = ">=4.41.0"
-accelerate = ">=0.30.0"
 pillow = ">=9.0.0"
 pydantic = ">=2.0.0"
 
 [cerebrium.dependencies.apt]
-# Kept intact so Cerebrium has the tools to compile your native parser.cpp on startup
 build-essential = "latest"
 cmake = "latest"
 g++ = "latest"
+ca-certificates = "latest"
 
 [cerebrium.scaling]
-# Scaled to zero when inactive so you don't spend a single cent when nobody is chatting
 min_replicas = 0
 max_replicas = 500
-# If an instance sits idle for 10 seconds, shut it down immediately
 idle_timeout = 10
 
