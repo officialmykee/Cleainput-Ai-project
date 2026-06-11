@@ -51,11 +51,11 @@ body { display: flex; flex-direction: column; justify-content: space-between; al
 /* Context menu */
 .ctx-menu {
     position: fixed;
-    background: #f0f0f0;
+    background: #161616;
     border-radius: 14px;
     padding: 6px;
     min-width: 160px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.45), 0 2px 8px rgba(0,0,0,0.3);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.8), 0 2px 8px rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,.08);
     z-index: 500;
     opacity: 0;
     transform: scale(0.92);
@@ -69,14 +69,14 @@ body { display: flex; flex-direction: column; justify-content: space-between; al
     padding: 11px 14px;
     border-radius: 9px;
     cursor: pointer;
-    font-size: 14px; font-weight: 450; color: #1a1a1a;
+    font-size: 14px; font-weight: 450; color: #e8e8e8;
     transition: background .1s;
     border: none; background: transparent; width: 100%; text-align: left; appearance: none;
 }
-.ctx-menu-item:hover { background: rgba(0,0,0,.07); }
-.ctx-menu-item.danger { color: #e03131; }
-.ctx-menu-item.danger:hover { background: rgba(224,49,49,.09); }
-.ctx-menu-divider { height: 1px; background: rgba(0,0,0,.1); margin: 4px 0; }
+.ctx-menu-item:hover { background: rgba(255,255,255,.06); }
+.ctx-menu-item.danger { color: #f87171; }
+.ctx-menu-item.danger:hover { background: rgba(248,113,113,.08); }
+.ctx-menu-divider { height: 1px; background: rgba(255,255,255,.07); margin: 4px 0; }
 .ctx-icon { width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .ctx-icon svg { width: 16px; height: 16px; }
 
@@ -125,6 +125,20 @@ body { display: flex; flex-direction: column; justify-content: space-between; al
 .composer { background: #0a0a0a; border-radius: 20px; padding: 18px 18px 14px; width: 100%; max-width: 620px; margin: 0 24px; box-shadow: 0 8px 40px rgba(0,0,0,.6), 0 2px 8px rgba(0,0,0,.4); border: 1px solid rgba(255,255,255,.08); }
 .composer-input { width: 100%; min-height: 46px; font-family: 'Inter', sans-serif; font-size: 16px; color: #fff; outline: none; line-height: 1.6; caret-color: #a855f7; word-break: break-word; }
 .composer-input:empty::before { content: attr(data-placeholder); color: #555; pointer-events: none; }
+
+/* Typewriter placeholder */
+.composer-input.tw-active:empty::before {
+    content: attr(data-tw);
+    color: #555;
+    pointer-events: none;
+    border-right: 2px solid #a855f7;
+    animation: twCaret 0.7s step-end infinite;
+    padding-right: 2px;
+}
+@keyframes twCaret {
+    0%, 100% { border-color: #a855f7; }
+    50% { border-color: transparent; }
+}
 .composer-bar { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; }
 .composer-left { display: flex; gap: 8px; align-items: center; }
 .icon-btn { width: 36px; height: 36px; border-radius: 50%; border: none; background: #1a1a1a; color: #888; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: background .15s, transform 0.1s; flex-shrink: 0; appearance: none; position: relative; }
@@ -393,6 +407,42 @@ async function submitUserPrompt() {
         thread.scrollTop = thread.scrollHeight;
     }, 2000);
 }
+
+// Typewriter placeholder
+(function() {
+    var phrases = [
+        "Describe the app you want to build...",
+        "Build a fitness tracker app...",
+        "Create a recipe sharing app...",
+        "Make a habit tracking app...",
+        "Design a note-taking app..."
+    ];
+    var el = document.querySelector(".composer-input");
+    var phraseIdx = 0, charIdx = 0, deleting = false, pauseTicks = 0;
+    var PAUSE_TYPE = 28, PAUSE_DEL = 6;
+    function tick() {
+        if (el.innerText.trim() !== "") return;
+        var phrase = phrases[phraseIdx];
+        if (!deleting) {
+            charIdx++;
+            el.setAttribute("data-tw", phrase.substring(0, charIdx));
+            if (charIdx === phrase.length) { deleting = true; pauseTicks = PAUSE_TYPE; }
+        } else {
+            if (pauseTicks > 0) { pauseTicks--; }
+            else {
+                charIdx--;
+                el.setAttribute("data-tw", phrase.substring(0, charIdx));
+                if (charIdx === 0) { deleting = false; pauseTicks = PAUSE_DEL; phraseIdx = (phraseIdx + 1) % phrases.length; }
+            }
+        }
+        setTimeout(tick, deleting ? (pauseTicks > 0 ? 60 : 45) : 68);
+    }
+    el.classList.add("tw-active");
+    el.setAttribute("data-tw", "");
+    setTimeout(tick, 400);
+    el.addEventListener("focus", function() { el.classList.remove("tw-active"); });
+    el.addEventListener("blur", function() { if (el.innerText.trim() === "") el.classList.add("tw-active"); });
+})();
 
 function escapeHtml(str) {
     return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
