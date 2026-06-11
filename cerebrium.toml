@@ -18,6 +18,9 @@ build-essential = "latest"
 cmake = "latest"
 g++ = "latest"
 ca-certificates = "latest"
+default-jre = "latest"
+zip = "latest"
+unzip = "latest"
 
 [cerebrium.scaling]
 min_replicas = 0
