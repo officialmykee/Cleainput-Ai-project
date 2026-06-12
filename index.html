@@ -146,6 +146,50 @@ h1 .highlight{
     height:16px;
 }
 
+/* Send button — right side */
+#sendBtn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.18s, transform 0.1s, box-shadow 0.18s;
+    /* idle: outline style */
+    background: #f3f1fb;
+    color: #b8b5cc;
+    box-shadow: none;
+}
+
+#sendBtn svg {
+    width: 16px;
+    height: 16px;
+    transition: color 0.18s;
+}
+
+#sendBtn.has-text {
+    background: linear-gradient(135deg, #a855f7, #4ea7ff);
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(168,85,247,.35);
+}
+
+#sendBtn.has-text:hover {
+    opacity: 0.88;
+    transform: scale(1.06);
+}
+
+#sendBtn:not(.has-text):hover {
+    background: #edeaf5;
+    color: #9d84d4;
+}
+
+#sendBtn:active {
+    transform: scale(0.94);
+}
+
 #statusLog {
     font-size: 12px;
     color: #a855f7;
@@ -504,10 +548,13 @@ h1 .highlight{
                 </button>
                 <span style="border:1.5px solid #c4b8e8;border-radius:999px;padding:5px 14px;font-size:12px;font-weight:500;color:#7c5cbf;letter-spacing:.02em;display:inline-flex;align-items:center;">react native</span>
             </div>
-            <button class="icon-btn" title="Voice input">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M9.75 7.75C9.75 7.33579 9.41421 7 9 7H7.81597H6.29847C6.66598 4.17873 9.07855 2 12 2C14.9214 2 17.334 4.17873 17.7015 7H16.184L13.5 7C13.0858 7 12.75 7.33579 12.75 7.75C12.75 8.16421 13.0858 8.5 13.5 8.5L16.25 8.5H17.75V10H16.25H13.5C13.0858 10 12.75 10.3358 12.75 10.75C12.75 11.1642 13.0858 11.5 13.5 11.5H16.184H17.7015C17.334 14.3213 14.9214 16.5 12 16.5C9.07855 16.5 6.66598 14.3213 6.29847 11.5H7.81597H9C9.41421 11.5 9.75 11.1642 9.75 10.75C9.75 10.3358 9.41421 10 9 10H7.75H6.25V8.5H7.75H9C9.41421 8.5 9.75 8.16421 9.75 7.75Z" fill="#7c5cbf"/>
-                    <path fill-rule="evenodd" clip-rule="evenodd" d="M4 9C4.41421 9 4.75 9.33579 4.75 9.75V10.75C4.75 14.7541 7.99594 18 12 18C16.0041 18 19.25 14.7541 19.25 10.75V9.75C19.25 9.33579 19.5858 9 20 9C20.4142 9 20.75 9.33579 20.75 9.75V10.75C20.75 15.3298 17.2314 19.0879 12.75 19.4683V21.75C12.75 22.1642 12.4142 22.5 12 22.5C11.5858 22.5 11.25 22.1642 11.25 21.75V19.4683C6.7686 19.0879 3.25 15.3298 3.25 10.75V9.75C3.25 9.33579 3.58579 9 4 9Z" fill="#7c5cbf"/>
+
+            <!-- Send / Arrow-up button -->
+            <button id="sendBtn" title="Send" onclick="handleSendClick()">
+                <!-- Arrow up icon -->
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="19" x2="12" y2="5"/>
+                    <polyline points="5 12 12 5 19 12"/>
                 </svg>
             </button>
         </div>
@@ -615,12 +662,31 @@ function switchView(view) {
 <script>
 const input = document.querySelector('.composer-input');
 const statusLog = document.getElementById('statusLog');
+const sendBtn = document.getElementById('sendBtn');
+
+// Update send button state based on input content
+function updateSendBtn() {
+    const hasText = input.innerText.trim().length > 0;
+    if (hasText) {
+        sendBtn.classList.add('has-text');
+        sendBtn.title = 'Send';
+    } else {
+        sendBtn.classList.remove('has-text');
+        sendBtn.title = 'Send';
+    }
+}
 
 input.addEventListener('input', () => {
     if (input.innerText.trim() === '') {
         input.innerHTML = '';
     }
+    updateSendBtn();
 });
+
+// Always opens login page on click
+function handleSendClick() {
+    openAuth('login');
+}
 
 async function submitUserPrompt() {
     const promptText = input.innerText.trim();
@@ -631,7 +697,6 @@ async function submitUserPrompt() {
 
     statusLog.textContent = "Passing description to C++ AST parsing engine via Cerebrium...";
 
-    // Mock layout parser payload matching parser.cpp parameters
     const structuralPayload = {
         type: "TouchableOpacity",
         content: promptText,
@@ -662,4 +727,7 @@ async function submitUserPrompt() {
 </script>
 </body>
 </html>
+
+
+
 
