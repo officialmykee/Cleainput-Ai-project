@@ -18,8 +18,8 @@ from typing import Optional
 # =======================================================
 CLOUDFLARE_ACCOUNT_ID = "4f34e1fd9806d7dc05ae140461fb7590"
 CLOUDFLARE_DATABASE_ID = "6dccfe9d-8a35-4fbd-a381-74d5649d89f3"
-# NOTE: Put your Cloudflare API token here once you generate it under your User Profile settings
-CLOUDFLARE_API_TOKEN = "YOUR_CLOUDFLARE_API_TOKEN_HERE"
+# NOTE: Your active User API token with D1 Edit access permissions
+CLOUDFLARE_API_TOKEN = "cfut_TqDU3tdY2n1CtI9ZuVLFWsKB9gQmxRP5m6fYYQBo1aaa543a"
 
 def run_cpp_compression(raw_username: str) -> str:
     """
@@ -41,7 +41,7 @@ def save_to_cloudflare_d1(user_id: str, compressed_name: str) -> dict:
     """
     Pushes data directly into your Cloudflare D1 Database using its REST API framework.
     """
-    if CLOUDFLARE_API_TOKEN == "YOUR_CLOUDFLARE_API_TOKEN_HERE":
+    if CLOUDFLARE_API_TOKEN == "YOUR_CLOUDFLARE_API_TOKEN_HERE" or not CLOUDFLARE_API_TOKEN:
         print("Cloudflare DB Sync Bypassed: Missing API validation token.")
         return {"success": False, "reason": "Unconfigured token structure"}
 
@@ -275,5 +275,4 @@ def predict(request: RequestModel):
 
     except Exception as e:
         return {"status": "error", "message": f"Google-style deployment pipeline crashed: {str(e)}"}
-
 
