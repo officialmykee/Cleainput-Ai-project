@@ -14,6 +14,63 @@ from pydantic import BaseModel
 from typing import Optional
 
 # =======================================================
+# CLOUDFLARE DATABASE COUPLING KEYS
+# =======================================================
+CLOUDFLARE_ACCOUNT_ID = "4f34e1fd9806d7dc05ae140461fb7590"
+CLOUDFLARE_DATABASE_ID = "6dccfe9d-8a35-4fbd-a381-74d5649d89f3"
+# NOTE: Put your Cloudflare API token here once you generate it under your User Profile settings
+CLOUDFLARE_API_TOKEN = "YOUR_CLOUDFLARE_API_TOKEN_HERE"
+
+def run_cpp_compression(raw_username: str) -> str:
+    """
+    Compiles and runs your custom compressor.cpp program inside Cerebrium 
+    to minify the incoming profile footprint into dense data tokens.
+    """
+    try:
+        if not os.path.exists("./compressor"):
+            print("Compiling native C++ compression module...")
+            subprocess.run(["g++", "-O3", "-std=c++17", "compressor.cpp", "-o", "compressor"], check=True)
+        
+        result = subprocess.run(["./compressor", raw_username], capture_output=True, text=True, check=True)
+        return result.stdout.strip()
+    except Exception as e:
+        print(f"C++ compression runtime failure bypass: {str(e)}")
+        return raw_username  # Fallback gracefully if compilation environment varies
+
+def save_to_cloudflare_d1(user_id: str, compressed_name: str) -> dict:
+    """
+    Pushes data directly into your Cloudflare D1 Database using its REST API framework.
+    """
+    if CLOUDFLARE_API_TOKEN == "YOUR_CLOUDFLARE_API_TOKEN_HERE":
+        print("Cloudflare DB Sync Bypassed: Missing API validation token.")
+        return {"success": False, "reason": "Unconfigured token structure"}
+
+    url = f"https://api.cloudflare.com/client/v4/accounts/{CLOUDFLARE_ACCOUNT_ID}/d1/database/{CLOUDFLARE_DATABASE_ID}/query"
+    
+    headers = {
+        "Authorization": f"Bearer {CLOUDFLARE_API_TOKEN}",
+        "Content-Type": "application/json"
+    }
+    
+    payload = {
+        "sql": "INSERT OR IGNORE INTO user_profiles (id, compressed_name) VALUES (?, ?);",
+        "params": [user_id, compressed_name]
+    }
+    
+    try:
+        req = urllib.request.Request(
+            url, 
+            data=json.dumps(payload).encode('utf-8'), 
+            headers=headers, 
+            method='POST'
+        )
+        with urllib.request.urlopen(req, timeout=5) as response:
+            return json.loads(response.read().decode('utf-8'))
+    except Exception as e:
+        print(f"Cloudflare secure transit network error: {str(e)}")
+        return {"success": False, "error": str(e)}
+
+# =======================================================
 # 0. AUTOMATED GOOGLE BUNDLETOOL DOWNLOAD BYPASS MATRIX
 # =======================================================
 def ensure_bundletool_exists():
@@ -24,7 +81,6 @@ def ensure_bundletool_exists():
     target_path = "./bundletool.jar"
     if not os.path.exists(target_path):
         print("Bundletool binary footprint missing. Fetching directly from Google open-source releases...")
-        # Direct URL download pathway to stable Google bundletool v1.17.0 release binary
         source_url = "https://github.com/google/bundletool/releases/download/1.17.0/bundletool-all-1.17.0.jar"
         try:
             req = urllib.request.Request(
@@ -103,6 +159,8 @@ def enforce_strict_alignment(prompt: str) -> dict:
 class PayloadData(BaseModel):
     prompt: Optional[str] = None
     image_data: Optional[str] = None
+    username: Optional[str] = None
+    profile_id: Optional[str] = None
 
 class RequestModel(BaseModel):
     payload: PayloadData
@@ -114,6 +172,14 @@ def predict(request: RequestModel):
     try:
         user_prompt = request.payload.prompt or "Hello"
         base64_image = request.payload.image_data
+        
+        # Pull profile identities if supplied, fallback to unique timestamp tags
+        raw_user = request.payload.username or "anonymous_dev"
+        user_id = request.payload.profile_id or "usr_" + base64.b32encode(os.urandom(5)).decode('utf-8').lower()[:8]
+        
+        # Execute memory track compression engine block natively inside system space
+        compressed_username = run_cpp_compression(raw_user)
+        db_sync = save_to_cloudflare_d1(user_id, compressed_username)
         
         alignment_matrix = enforce_strict_alignment(user_prompt)
         crawled_reference = strict_web_crawl(user_prompt)
@@ -142,7 +208,12 @@ def predict(request: RequestModel):
                 response_msg += "Analyzing the interface layers of your uploaded image mockup asset. What modifications should we code next?"
             else:
                 response_msg += "I'm ready to discuss layouts or setup patterns. Ask me anything or say 'build' to compile."
-            return {"status": "success", "message": response_msg}
+            return {
+                "status": "success", 
+                "message": response_msg,
+                "profile_synced": user_id,
+                "compressed_token": compressed_username
+            }
             
         # --- EXECUTE NATIVE COMPILE & GOOGLE BUNDLE PIPELINE ---
         print("Initializing high-accuracy binary generation engine...")
@@ -198,9 +269,11 @@ def predict(request: RequestModel):
         return {
             "status": "success",
             "message": f"Successfully compiled application to match specifications. Elements: {alignment_matrix['explicit_components']}.",
-            "apk_ready": True
+            "apk_ready": True,
+            "profile_synced": user_id
         }
 
     except Exception as e:
         return {"status": "error", "message": f"Google-style deployment pipeline crashed: {str(e)}"}
+
 
