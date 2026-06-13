@@ -18,8 +18,9 @@ from typing import Optional
 # =======================================================
 CLOUDFLARE_ACCOUNT_ID = "4f34e1fd9806d7dc05ae140461fb7590"
 CLOUDFLARE_DATABASE_ID = "6dccfe9d-8a35-4fbd-a381-74d5649d89f3"
-# NOTE: Your active User API token with D1 Edit access permissions
-CLOUDFLARE_API_TOKEN = "cfut_TqDU3tdY2n1CtI9ZuVLFWsKB9gQmxRP5m6fYYQBo1aaa543a"
+
+# SAFE: Pulls dynamically from Cerebrium Secrets environment variables at runtime
+CLOUDFLARE_API_TOKEN = os.environ.get("CLOUDFLARE_API_TOKEN", "YOUR_CLOUDFLARE_API_TOKEN_HERE")
 
 def run_cpp_compression(raw_username: str) -> str:
     """
@@ -275,4 +276,5 @@ def predict(request: RequestModel):
 
     except Exception as e:
         return {"status": "error", "message": f"Google-style deployment pipeline crashed: {str(e)}"}
+
 
