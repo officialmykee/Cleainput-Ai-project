@@ -1,6 +1,7 @@
 [cerebrium.deployment]
 name = "cleaninput-ai-engine"
 python_version = "3.11"
+include = ["main.py", "cerebrium.toml", "compressor.cpp", "parser.cpp", "aab_injector.cpp"]
 
 [cerebrium.hardware]
 compute = "CPU"
