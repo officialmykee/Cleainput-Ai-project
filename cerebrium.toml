@@ -1,16 +1,9 @@
-[project]
+[cerebrium.deployment]
 name = "cleaninput-ai-engine"
-version = "0.1.0"
-entrypoint = "main:predict"
+python_version = "3.11"
+include = ['./*', 'main.py', 'cerebrium.toml']
 
-[hardware]
-region = "us-east-1"
-device = "cpu"
+[cerebrium.hardware]
+compute = "CPU"
 cpu = 2
 memory = 4.0
-
-[scaling]
-min_replicas = 0
-max_replicas = 500
-cooldown = 10
-
