@@ -3,9 +3,40 @@ import io
 import json
 import os
 import subprocess
+import sys
 import urllib.request
 import urllib.parse
 import re
+
+# =======================================================
+# DYNAMIC DEPENDENCY INJECTOR BUNDLE (Bypasses TOML Parser 500 Bugs)
+# =======================================================
+def install_missing_packages():
+    """
+    Ensures heavy ML packages are initialized inside the Cerebrium container space
+    without relying on the fragile dashboard TOML parser layers.
+    """
+    required_packages = {
+        "torch": "torch",
+        "torchvision": "torchvision",
+        "PIL": "pillow",
+        "pydantic": "pydantic"
+    }
+    
+    for module_name, package_name in required_packages.items():
+        try:
+            __import__(module_name)
+        except ImportError:
+            print(f"Container optimization: Bootstrapping engine component '{package_name}'...")
+            try:
+                subprocess.check_call([sys.executable, "-m", "pip", "install", package_name])
+            except Exception as e:
+                print(f"Warning: Runtime component injector skipped '{package_name}': {str(e)}")
+
+# Initialize execution block for third-party libraries instantly on boot sequence
+install_missing_packages()
+
+# Safe conditional imports to prevent compilation errors during module tracking
 import torch
 import torch.nn as nn
 import torchvision.transforms as transforms
@@ -19,7 +50,7 @@ from typing import Optional
 CLOUDFLARE_ACCOUNT_ID = "4f34e1fd9806d7dc05ae140461fb7590"
 CLOUDFLARE_DATABASE_ID = "6dccfe9d-8a35-4fbd-a381-74d5649d89f3"
 
-# SAFE: Pulls dynamically from Cerebrium Secrets environment variables at runtime
+# SAFE: Dynamically intercepted from your secure Cerebrium Project Secrets dashboard setting
 CLOUDFLARE_API_TOKEN = os.environ.get("CLOUDFLARE_API_TOKEN", "YOUR_CLOUDFLARE_API_TOKEN_HERE")
 
 def run_cpp_compression(raw_username: str) -> str:
@@ -276,5 +307,8 @@ def predict(request: RequestModel):
 
     except Exception as e:
         return {"status": "error", "message": f"Google-style deployment pipeline crashed: {str(e)}"}
+
+
+
 
 
