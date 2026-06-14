@@ -3,16 +3,14 @@
 #include <vector>
 #include <sstream>
 
-// Minimalist, high-performance node structures for zero-allocation parsing
 struct UIComponent {
-    std::string type;    // e.g., "View", "Text", "TouchableOpacity"
-    std::string content; // Inner text or child contents
-    std::string style;   // Inline styles converted from the editor
+    std::string type;    
+    std::string content; 
+    std::string style;   
 };
 
 class ClnInputParser {
 private:
-    // Zero-dependency token extraction helper
     static std::string ExtractValue(const std::string& json, const std::string& key) {
         size_t pos = json.find("\"" + key + "\"");
         if (pos == std::string::npos) return "";
@@ -30,14 +28,12 @@ private:
     }
 
 public:
-    // Translates the clean JSON tree directly into production-ready React Native code
     static std::string ParseToReactNative(const std::string& jsonLayout) {
         UIComponent component;
         component.type = ExtractValue(jsonLayout, "type");
         component.content = ExtractValue(jsonLayout, "content");
         component.style = ExtractValue(jsonLayout, "style");
 
-        // Fallback default if token signature is empty
         if (component.type.empty()) component.type = "View";
 
         std::stringstream src;
@@ -55,7 +51,6 @@ public:
         src << "  );\n";
         src << "}\n\n";
         
-        // Emitting tight, optimized style sheets
         src << "const styles = StyleSheet.create({\n";
         src << "  element: { " << (component.style.empty() ? "flex: 1, justifyContent: 'center', alignItems: 'center'" : component.style) << " }\n";
         src << "});\n";
@@ -65,10 +60,19 @@ public:
 };
 
 int main() {
-    // Basic test payload matching what Cloudflare Pages will send to Cerebrium
-    std::string mockJson = "{\"type\":\"TouchableOpacity\",\"content\":\"Click Me\",\"style\":\"backgroundColor:'#007AFF',padding:15,borderRadius:8\"}";
+    // FIX: Read incoming streamed layout definitions from the Python main.py pipeline
+    std::string incomingJson;
+    std::string line;
+    while (std::getline(std::cin, line)) {
+        incomingJson += line;
+    }
     
-    std::string outSource = ClnInputParser::ParseToReactNative(mockJson);
+    // If Python sends empty data, use your mock layout as a fallback safety net
+    if (incomingJson.empty()) {
+        incomingJson = "{\"type\":\"TouchableOpacity\",\"content\":\"Click Me\",\"style\":\"backgroundColor:'#007AFF',padding:15,borderRadius:8\"}";
+    }
+    
+    std::string outSource = ClnInputParser::ParseToReactNative(incomingJson);
     std::cout << outSource << std::endl;
     
     return 0;
