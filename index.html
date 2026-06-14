@@ -809,6 +809,9 @@ function switchView(view) {
      SCRIPT 2 — Composer input / send button / image upload
 ───────────────────────────────────────────── -->
 <script>
+// Moved configuration to the top of Script 2 to fix scoping
+const CF_WORKER_URL = 'https://cleainput.officialmykeee.workers.dev';
+
 const input          = document.querySelector('.composer-input');
 const statusLog      = document.getElementById('statusLog');
 const sendBtn        = document.getElementById('sendBtn');
@@ -975,8 +978,7 @@ async function submitUserPrompt() {
 ───────────────────────────────────────────── -->
 <script>
 // ── CONFIG ──────────────────────────────────────
-// Replace with your deployed Cloudflare Worker URL
-const CF_WORKER_URL = 'https://cleainput.officialmykeee.workers.dev';
+// SESSION_KEY is now the first declaration here
 
 // Session key stored in sessionStorage (tab-scoped)
 // Falls back to localStorage when "Remember me" is ticked
