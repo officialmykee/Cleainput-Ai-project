@@ -616,8 +616,10 @@ h1 .highlight{
             <span class="logo-name">Cleainput</span>
         </a>
         <div class="header-actions">
+            <!-- Shown when logged out -->
             <button class="btn-signin" id="headerSignin" onclick="openAuth('login')">Sign in</button>
             <button class="btn-signup" id="headerSignup" onclick="openAuth('signup')">Sign up</button>
+            <!-- Shown when logged in -->
             <button class="btn-user" id="headerUser">
                 <div class="avatar" id="headerAvatar">U</div>
                 <span id="headerUsername">User</span>
@@ -644,8 +646,10 @@ h1 .highlight{
     </p>
 
     <div class="composer">
+        <!-- Hidden file input for image uploads -->
         <input type="file" id="imgUploadInput" accept="image/*" multiple style="display:none" onchange="handleImageUpload(event)">
 
+        <!-- Image preview strip (shown above text input when images are attached) -->
         <div class="img-preview-strip" id="imgPreviewStrip"></div>
 
         <div
@@ -655,6 +659,7 @@ h1 .highlight{
         ></div>
         <div class="composer-bar">
             <div class="composer-left">
+                <!-- Cloud-arrow button now triggers image upload -->
                 <button class="icon-btn" id="uploadImgBtn" title="Attach images" onclick="document.getElementById('imgUploadInput').click()">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="16 16 12 12 8 16"></polyline>
@@ -679,11 +684,13 @@ h1 .highlight{
 
 </div>
 
+<!-- Auth Full Page -->
 <div class="auth-page" id="authPage">
   <button class="auth-close" onclick="closeAuth()">✕</button>
   <div class="auth-inner">
     <div class="auth-card">
 
+      <!-- LOGIN VIEW -->
       <div id="loginView">
         <div class="auth-brand">Cleainput</div>
 
@@ -698,18 +705,21 @@ h1 .highlight{
 
         <div class="auth-divider">or</div>
 
+        <!-- ✅ VERIFIED: id="loginForm" -->
         <form id="loginForm" onsubmit="handleLogin(event)" novalidate>
           <div id="loginMsg" class="auth-msg"></div>
 
           <label class="field-label" for="loginEmail">Email</label>
           <div class="field-wrap">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+            <!-- ✅ VERIFIED: id="loginEmail" -->
             <input class="field-input" id="loginEmail" type="email" placeholder="Your email" required>
           </div>
 
           <label class="field-label" for="loginPassword">Password</label>
           <div class="field-wrap">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <!-- ✅ VERIFIED: id="loginPassword" -->
             <input class="field-input" id="loginPassword" type="password" placeholder="Your password" required>
           </div>
 
@@ -723,6 +733,7 @@ h1 .highlight{
         <div class="auth-switch">Don't have an account? <a onclick="switchView('signup')">Sign Up</a></div>
       </div>
 
+      <!-- SIGNUP VIEW -->
       <div id="signupView" style="display:none">
         <div class="auth-brand">Cleainput</div>
 
@@ -737,24 +748,28 @@ h1 .highlight{
 
         <div class="auth-divider">or</div>
 
+        <!-- ✅ VERIFIED: id="signupForm" -->
         <form id="signupForm" onsubmit="handleSignup(event)" novalidate>
           <div id="signupMsg" class="auth-msg"></div>
 
           <label class="field-label" for="signupUsername">Full Name</label>
           <div class="field-wrap">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+            <!-- ✅ VERIFIED: id="signupUsername" -->
             <input class="field-input" id="signupUsername" type="text" placeholder="Your full name" required>
           </div>
 
           <label class="field-label" for="signupEmail">Email</label>
           <div class="field-wrap">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+            <!-- ✅ VERIFIED: id="signupEmail" -->
             <input class="field-input" id="signupEmail" type="email" placeholder="Your email" required>
           </div>
 
           <label class="field-label" for="signupPassword">Password</label>
           <div class="field-wrap" style="margin-bottom:22px">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <!-- ✅ VERIFIED: id="signupPassword" -->
             <input class="field-input" id="signupPassword" type="password" placeholder="Create a password" required>
           </div>
 
@@ -768,6 +783,9 @@ h1 .highlight{
 </div>
 
 
+<!-- ─────────────────────────────────────────────
+     SCRIPT 1 — Auth page navigation helpers
+───────────────────────────────────────────── -->
 <script>
 function openAuth(view) {
     document.getElementById('authPage').classList.add('active');
@@ -787,6 +805,9 @@ function switchView(view) {
 }
 </script>
 
+<!-- ─────────────────────────────────────────────
+     SCRIPT 2 — Composer input / send button / image upload
+───────────────────────────────────────────── -->
 <script>
 const input          = document.querySelector('.composer-input');
 const statusLog      = document.getElementById('statusLog');
@@ -892,13 +913,12 @@ composerEl.addEventListener('drop', (e) => {
 });
 
 // ── Send / Auth gate ──────────────────────────
-// FIXED: Gate check redirects unauthenticated state, fires workflow if valid session exists
 function handleSendClick() {
     const session = loadSession();
     if (session) {
-        submitUserPrompt();
+        submitUserPrompt(); // Fire request directly if logged in
     } else {
-        openAuth('login');
+        openAuth('login');  // Open modal only if unauthenticated
     }
 }
 
@@ -912,7 +932,7 @@ async function submitUserPrompt() {
         return;
     }
 
-    // FIXED: Appended token authorization from local session profile state
+    // Session check: must be signed in with a valid token
     const session = loadSession();
     if (!session || !session.token) {
         statusLog.textContent = "Please sign in to submit your project.";
@@ -930,7 +950,7 @@ async function submitUserPrompt() {
     try {
         const response = await fetch(`${CF_WORKER_URL}/build`, {
             method: 'POST',
-            headers: { 
+            headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${session.token}`
             },
@@ -949,9 +969,17 @@ async function submitUserPrompt() {
 }
 </script>
 
+<!-- ─────────────────────────────────────────────
+     SCRIPT 3 — Auth logic: Cloudflare Workers/D1
+     + session management (placed before </body>)
+───────────────────────────────────────────── -->
 <script>
 // ── CONFIG ──────────────────────────────────────
+// Replace with your deployed Cloudflare Worker URL
 const CF_WORKER_URL = 'https://cleainput.officialmykeee.workers.dev';
+
+// Session key stored in sessionStorage (tab-scoped)
+// Falls back to localStorage when "Remember me" is ticked
 const SESSION_KEY = 'cleainput_session';
 
 // ── UTILITY HELPERS ──────────────────────────────
@@ -972,13 +1000,18 @@ function setLoading(btnId, loading) {
 }
 
 // ── SESSION MANAGEMENT ────────────────────────────
+/**
+ * Save session after successful login / signup.
+ * Uses localStorage when "Remember me" is checked,
+ * otherwise sessionStorage (clears on tab close).
+ */
 function saveSession(userData, remember) {
     const payload = JSON.stringify(userData);
     if (remember) {
         localStorage.setItem(SESSION_KEY, payload);
     } else {
         sessionStorage.setItem(SESSION_KEY, payload);
-        localStorage.removeItem(SESSION_KEY);
+        localStorage.removeItem(SESSION_KEY); // clear any old persistent session
     }
 }
 
@@ -1002,6 +1035,7 @@ function updateHeaderUI(session) {
     const avatarEl   = document.getElementById('headerAvatar');
 
     if (session) {
+        // Logged in
         signinBtn.style.display  = 'none';
         signupBtn.style.display  = 'none';
         userBtn.style.display    = 'flex';
@@ -1009,6 +1043,7 @@ function updateHeaderUI(session) {
         usernameEl.textContent   = session.username || session.email.split('@')[0];
         avatarEl.textContent     = (session.username || session.email)[0].toUpperCase();
     } else {
+        // Logged out
         signinBtn.style.display  = '';
         signupBtn.style.display  = '';
         userBtn.style.display    = 'none';
@@ -1047,6 +1082,7 @@ async function handleSignup(event) {
         const data = res.ok ? await res.json() : null;
 
         if (res.ok && data && data.success) {
+            // FIXED: Appended profile_id to match D1 structure
             saveSession({
                 profile_id: data.profile_id,
                 username: data.username || username,
@@ -1057,6 +1093,7 @@ async function handleSignup(event) {
             updateHeaderUI({ username: data.username || username, email });
             showMsg('signupMsg', 'Account created! Loading your workspace... 🎉', 'success');
 
+            // FIXED: Redirect to prompt workspace instead of closing popup
             setTimeout(() => { window.location.href = 'prompt.html'; }, 1000);
         } else {
             showMsg('signupMsg', (data && data.error) || 'Sign-up failed. Please try again.', 'error');
@@ -1093,6 +1130,7 @@ async function handleLogin(event) {
         const data = res.ok ? await res.json() : null;
 
         if (res.ok && data && data.success) {
+            // FIXED: Captured unique D1 profile_id for Hugging Face mapping
             saveSession({
                 profile_id: data.profile_id,
                 username: data.username || email.split('@')[0],
@@ -1103,6 +1141,7 @@ async function handleLogin(event) {
             updateHeaderUI({ username: data.username || email.split('@')[0], email });
             showMsg('loginMsg', 'Welcome back! Opening workspace... 👋', 'success');
 
+            // FIXED: Redirect straight to prompt page with active session
             setTimeout(() => { window.location.href = 'prompt.html'; }, 1000);
         } else {
             showMsg('loginMsg', (data && data.error) || 'Incorrect email or password.', 'error');
@@ -1124,6 +1163,5 @@ async function handleLogin(event) {
 
 </body>
 </html>
-
 
 
