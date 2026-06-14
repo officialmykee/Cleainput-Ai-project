@@ -1,9 +1,0 @@
-[cerebrium.deployment]
-name = "cleaninput-ai-engine"
-python_version = "3.11"
-include = ['./*', 'main.py', 'cerebrium.toml']
-
-[cerebrium.hardware]
-compute = "CPU"
-cpu = 2
-memory = 4.0
