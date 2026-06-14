@@ -18,13 +18,8 @@ body{
     height:100vh;
     overflow:hidden;
     font-family:'Inter',sans-serif;
-    background:
-    radial-gradient(
-        circle at top left,
-        rgba(255,210,240,.9),
-        rgba(240,235,255,.9) 45%,
-        rgba(228,240,255,.95) 100%
-    );
+    background: #0d0d12;
+    background-image: radial-gradient(ellipse 60% 40% at 20% 30%, rgba(168,85,247,0.07) 0%, transparent 70%), radial-gradient(ellipse 50% 40% at 80% 70%, rgba(78,167,255,0.06) 0%, transparent 70%);
     display:flex;
     justify-content:center;
     align-items:center;
@@ -35,7 +30,7 @@ body::before{
     position:absolute;
     inset:0;
     background-image:
-        radial-gradient(rgba(120,120,120,.12) 1px, transparent 1px);
+        radial-gradient(rgba(255,255,255,.04) 1px, transparent 1px);
     background-size:18px 18px;
     pointer-events:none;
 }
@@ -55,7 +50,7 @@ h1{
     font-weight:800;
     line-height:1.13;
     letter-spacing:-.02em;
-    color:#1a1a2e;
+    color:#f0eeff;
     margin-bottom:22px;
 }
 
@@ -68,7 +63,7 @@ h1 .highlight{
 
 .sub{
     font-size:clamp(16px,1.8vw,19px);
-    color:#5a5a7a;
+    color:#8b8aa8;
     line-height:1.65;
     max-width:560px;
     margin:0 auto 32px;
@@ -77,13 +72,13 @@ h1 .highlight{
 
 /* Composer box */
 .composer{
-    background:#fff;
+    background:#16151f;
     border-radius:20px;
     padding:18px 18px 14px;
     max-width:620px;
     margin:0 auto;
-    box-shadow:0 8px 40px rgba(120,80,220,.13), 0 2px 8px rgba(0,0,0,.06);
-    border:1px solid rgba(200,190,230,.35);
+    box-shadow:0 8px 40px rgba(0,0,0,.4), 0 2px 8px rgba(0,0,0,.3);
+    border:1px solid rgba(255,255,255,.08);
 }
 
 .composer-input{
@@ -91,7 +86,7 @@ h1 .highlight{
     min-height:46px;
     font-family:'Inter',sans-serif;
     font-size:16px;
-    color:#1a1a2e;
+    color:#e8e6ff;
     outline:none;
     line-height:1.6;
     text-align:left;
@@ -101,7 +96,7 @@ h1 .highlight{
 
 .composer-input:empty::before{
     content:attr(data-placeholder);
-    color:#b8b5cc;
+    color:#44415a;
     pointer-events:none;
 }
 
@@ -123,8 +118,8 @@ h1 .highlight{
     height:36px;
     border-radius:50%;
     border:none;
-    background:#f3f1fb;
-    color:#7c5cbf;
+    background:#1e1c2a;
+    color:#9d84d4;
     display:flex;
     align-items:center;
     justify-content:center;
@@ -134,7 +129,7 @@ h1 .highlight{
 }
 
 .icon-btn:hover{
-    background:#e8e4f7;
+    background:#2a2740;
 }
 
 .icon-btn:active {
@@ -146,7 +141,7 @@ h1 .highlight{
     height:16px;
 }
 
-/* Send button — right side */
+/* Send button */
 #sendBtn {
     width: 36px;
     height: 36px;
@@ -158,9 +153,8 @@ h1 .highlight{
     cursor: pointer;
     flex-shrink: 0;
     transition: background 0.18s, transform 0.1s, box-shadow 0.18s;
-    /* idle: outline style */
-    background: #f3f1fb;
-    color: #b8b5cc;
+    background: #1e1c2a;
+    color: #44415a;
     box-shadow: none;
 }
 
@@ -182,7 +176,7 @@ h1 .highlight{
 }
 
 #sendBtn:not(.has-text):hover {
-    background: #edeaf5;
+    background: #2a2740;
     color: #9d84d4;
 }
 
@@ -204,15 +198,10 @@ h1 .highlight{
     left: 0;
     right: 0;
     z-index: 100;
-    background: radial-gradient(
-        circle at top left,
-        rgba(255,210,240,.9),
-        rgba(240,235,255,.9) 45%,
-        rgba(228,240,255,.95) 100%
-    );
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border-bottom: 1px solid rgba(0,0,0,0.07);
+    background: rgba(13,13,18,0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
     height: 60px;
     display: flex;
     align-items: center;
@@ -238,7 +227,7 @@ h1 .highlight{
     font-family: 'Sora', sans-serif;
     font-size: 18px;
     font-weight: 700;
-    color: #1a1a2e;
+    color: #f0eeff;
     letter-spacing: -0.02em;
 }
 
@@ -267,8 +256,8 @@ h1 .highlight{
 
 .btn-signup {
     background: transparent;
-    color: #1a1a2e;
-    border: 1.5px solid #d8d5cf;
+    color: #c4c0e0;
+    border: 1.5px solid rgba(255,255,255,0.12);
     border-radius: 7px;
     padding: 6px 16px;
     height: 34px;
@@ -280,7 +269,46 @@ h1 .highlight{
     white-space: nowrap;
     transition: background 0.15s, border-color 0.15s;
 }
-.btn-signup:hover { background: rgba(0,0,0,0.05); border-color: #bbb8b2; }
+.btn-signup:hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.2); }
+
+/* Logged-in user pill in header */
+.btn-user {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    background: rgba(168,85,247,0.1);
+    border: 1.5px solid rgba(168,85,247,0.25);
+    border-radius: 20px;
+    padding: 5px 14px 5px 8px;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: #c084fc;
+    transition: background 0.15s;
+}
+.btn-user:hover { background: rgba(168,85,247,0.18); }
+.btn-user .avatar {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: linear-gradient(135deg,#a855f7,#4ea7ff);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: #fff;
+}
+.btn-logout {
+    background: transparent;
+    border: none;
+    color: #a855f7;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-family: 'Inter', sans-serif;
+    transition: background 0.15s;
+    display: none;
+}
+.btn-logout:hover { background: rgba(168,85,247,0.12); }
 
 .btn-menu {
     width: 38px;
@@ -300,7 +328,7 @@ h1 .highlight{
     display: block;
     width: 20px;
     height: 2px;
-    background: #1a1a2e;
+    background: #c4c0e0;
     border-radius: 2px;
 }
 
@@ -310,7 +338,8 @@ h1 .highlight{
     position: fixed;
     inset: 0;
     z-index: 200;
-    background: #fff;
+    background: #0d0d12;
+    background-image: radial-gradient(ellipse 60% 40% at 20% 30%, rgba(168,85,247,0.07) 0%, transparent 70%), radial-gradient(ellipse 50% 40% at 80% 70%, rgba(78,167,255,0.06) 0%, transparent 70%);
     overflow-y: auto;
     animation: pageFadeIn 0.2s ease;
 }
@@ -326,17 +355,17 @@ h1 .highlight{
     right: 20px;
     width: 36px; height: 36px;
     border: none;
-    background: rgba(255,255,255,0.7);
+    background: rgba(255,255,255,0.07);
     border-radius: 50%;
     cursor: pointer;
     display: flex; align-items: center; justify-content: center;
-    color: #1a1a2e;
+    color: #c4c0e0;
     font-size: 16px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
     transition: background 0.15s;
     z-index: 201;
 }
-.auth-close:hover { background: #fff; }
+.auth-close:hover { background: rgba(255,255,255,0.12); }
 
 .auth-inner {
     min-height: 100vh;
@@ -358,7 +387,7 @@ h1 .highlight{
     font-family: 'Sora', sans-serif;
     font-size: 20px;
     font-weight: 800;
-    color: #1a1a2e;
+    color: #f0eeff;
     letter-spacing: -0.02em;
     text-align: center;
     margin-bottom: 28px;
@@ -368,12 +397,12 @@ h1 .highlight{
     font-family: 'Sora', sans-serif;
     font-size: 24px;
     font-weight: 800;
-    color: #1a1a2e;
+    color: #f0eeff;
     margin-bottom: 6px;
 }
 .auth-sub {
     font-size: 14px;
-    color: #7a7a9a;
+    color: #6b6885;
     margin-bottom: 28px;
     line-height: 1.5;
 }
@@ -386,37 +415,37 @@ h1 .highlight{
     gap: 10px;
     padding: 11px 16px;
     border-radius: 10px;
-    border: 1.5px solid #e8e5f0;
-    background: #f5f4f8;
+    border: 1.5px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.04);
     font-family: 'Inter', sans-serif;
     font-size: 14px;
     font-weight: 500;
-    color: #1a1a2e;
+    color: #c4c0e0;
     cursor: pointer;
     margin-bottom: 10px;
     transition: background 0.15s;
 }
-.social-btn:hover { background: #edeaf5; }
+.social-btn:hover { background: rgba(255,255,255,0.08); }
 
 .auth-divider {
     display: flex;
     align-items: center;
     gap: 12px;
     margin: 18px 0;
-    color: #aaa;
+    color: #3a3852;
     font-size: 13px;
 }
 .auth-divider::before, .auth-divider::after {
     content: '';
     flex: 1;
     height: 1px;
-    background: #e8e8ee;
+    background: rgba(255,255,255,0.07);
 }
 
 .field-label {
     font-size: 13px;
     font-weight: 500;
-    color: #1a1a2e;
+    color: #a09cc0;
     margin-bottom: 6px;
     display: block;
 }
@@ -430,22 +459,23 @@ h1 .highlight{
     top: 50%;
     transform: translateY(-50%);
     width: 16px; height: 16px;
-    color: #aaa;
+    color: #44415a;
 }
 .field-input {
     width: 100%;
     padding: 11px 14px 11px 38px;
-    border: 1.5px solid #e0dde8;
+    border: 1.5px solid rgba(255,255,255,0.08);
     border-radius: 10px;
     font-family: 'Inter', sans-serif;
     font-size: 14px;
-    color: #1a1a2e;
+    color: #e8e6ff;
     outline: none;
     transition: border-color 0.15s;
-    background: #fff;
+    background: rgba(255,255,255,0.04);
 }
-.field-input::placeholder { color: #bbb; }
-.field-input:focus { border-color: #a855f7; background: #fff; }
+.field-input::placeholder { color: #3a3852; }
+.field-input:focus { border-color: #a855f7; background: rgba(168,85,247,0.05); }
+.field-input.error { border-color: #ef4444; }
 
 .auth-row {
     display: flex;
@@ -458,7 +488,7 @@ h1 .highlight{
     display: flex;
     align-items: center;
     gap: 7px;
-    color: #555;
+    color: #8b8aa8;
     cursor: pointer;
 }
 .remember input[type=checkbox] {
@@ -466,7 +496,7 @@ h1 .highlight{
     width: 15px; height: 15px;
     cursor: pointer;
 }
-.forgot { color: #7a7a9a; cursor: pointer; text-decoration: none; }
+.forgot { color: #6b6885; cursor: pointer; text-decoration: none; }
 .forgot:hover { color: #a855f7; }
 
 .auth-submit {
@@ -485,6 +515,7 @@ h1 .highlight{
     margin-bottom: 18px;
 }
 .auth-submit:hover { opacity: 0.9; }
+.auth-submit:disabled { opacity: 0.6; cursor: not-allowed; }
 
 .auth-switch {
     text-align: center;
@@ -498,6 +529,83 @@ h1 .highlight{
     cursor: pointer;
 }
 .auth-switch a:hover { text-decoration: underline; }
+
+/* Auth feedback message */
+.auth-msg {
+    font-size: 13px;
+    font-weight: 500;
+    padding: 10px 14px;
+    border-radius: 8px;
+    margin-bottom: 14px;
+    display: none;
+}
+.auth-msg.success { background: rgba(34,197,94,0.1); color: #4ade80; border: 1px solid rgba(34,197,94,0.2); display: block; }
+.auth-msg.error   { background: rgba(239,68,68,0.1); color: #f87171; border: 1px solid rgba(239,68,68,0.2); display: block; }
+
+/* Image preview strip */
+.img-preview-strip {
+    display: none;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 0 0 12px 0;
+}
+.img-preview-strip.has-images {
+    display: flex;
+}
+.img-thumb {
+    position: relative;
+    width: 72px;
+    height: 72px;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1.5px solid rgba(255,255,255,0.1);
+    flex-shrink: 0;
+    background: #1e1c2a;
+}
+.img-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+.img-thumb .remove-img {
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.7);
+    border: none;
+    color: #fff;
+    font-size: 10px;
+    line-height: 18px;
+    text-align: center;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: background 0.15s;
+}
+.img-thumb .remove-img:hover { background: rgba(239,68,68,0.85); }
+.img-thumb .img-name {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: rgba(0,0,0,0.55);
+    font-size: 9px;
+    color: #ddd;
+    padding: 2px 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+/* Upload icon button active state */
+.icon-btn.upload-active {
+    background: rgba(168,85,247,0.18);
+    color: #c084fc;
+}
+
 </style>
 </head>
 <body>
@@ -505,11 +613,16 @@ h1 .highlight{
 <header class="site-header">
     <div class="header-inner">
         <a href="#" class="logo-area">
-            <span class="logo-name">Cleaninput</span>
+            <span class="logo-name">Cleainput</span>
         </a>
         <div class="header-actions">
-            <button class="btn-signin" onclick="openAuth('login')">Sign in</button>
-            <button class="btn-signup" onclick="openAuth('signup')">Sign up</button>
+            <button class="btn-signin" id="headerSignin" onclick="openAuth('login')">Sign in</button>
+            <button class="btn-signup" id="headerSignup" onclick="openAuth('signup')">Sign up</button>
+            <button class="btn-user" id="headerUser">
+                <div class="avatar" id="headerAvatar">U</div>
+                <span id="headerUsername">User</span>
+            </button>
+            <button class="btn-logout" id="headerLogout" onclick="logoutUser()">Log out</button>
             <button class="btn-menu" aria-label="Menu">
                 <span></span>
                 <span></span>
@@ -531,6 +644,10 @@ h1 .highlight{
     </p>
 
     <div class="composer">
+        <input type="file" id="imgUploadInput" accept="image/*" multiple style="display:none" onchange="handleImageUpload(event)">
+
+        <div class="img-preview-strip" id="imgPreviewStrip"></div>
+
         <div
             class="composer-input"
             contenteditable="true"
@@ -538,7 +655,7 @@ h1 .highlight{
         ></div>
         <div class="composer-bar">
             <div class="composer-left">
-                <button class="icon-btn" title="Compile and Build APK" onclick="submitUserPrompt()">
+                <button class="icon-btn" id="uploadImgBtn" title="Attach images" onclick="document.getElementById('imgUploadInput').click()">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="16 16 12 12 8 16"></polyline>
                         <line x1="12" y1="12" x2="12" y2="21"></line>
@@ -549,9 +666,7 @@ h1 .highlight{
                 <span style="border:1.5px solid #c4b8e8;border-radius:999px;padding:5px 14px;font-size:12px;font-weight:500;color:#7c5cbf;letter-spacing:.02em;display:inline-flex;align-items:center;">react native</span>
             </div>
 
-            <!-- Send / Arrow-up button -->
             <button id="sendBtn" title="Send" onclick="handleSendClick()">
-                <!-- Arrow up icon -->
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="12" y1="19" x2="12" y2="5"/>
                     <polyline points="5 12 12 5 19 12"/>
@@ -564,82 +679,90 @@ h1 .highlight{
 
 </div>
 
-<!-- Auth Full Page -->
 <div class="auth-page" id="authPage">
   <button class="auth-close" onclick="closeAuth()">✕</button>
   <div class="auth-inner">
     <div class="auth-card">
 
-      <!-- LOGIN VIEW -->
       <div id="loginView">
+        <div class="auth-brand">Cleainput</div>
 
-        <button class="social-btn">
+        <button class="social-btn" type="button">
           <svg width="18" height="18" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
           Sign in with Google
         </button>
-        <button class="social-btn">
+        <button class="social-btn" type="button">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="#1a1a2e"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
           Sign in with GitHub
         </button>
 
         <div class="auth-divider">or</div>
 
-        <label class="field-label">Email</label>
-        <div class="field-wrap">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-          <input class="field-input" type="email" placeholder="Your email">
-        </div>
+        <form id="loginForm" onsubmit="handleLogin(event)" novalidate>
+          <div id="loginMsg" class="auth-msg"></div>
 
-        <label class="field-label">Password</label>
-        <div class="field-wrap">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-          <input class="field-input" type="password" placeholder="Your password">
-        </div>
+          <label class="field-label" for="loginEmail">Email</label>
+          <div class="field-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+            <input class="field-input" id="loginEmail" type="email" placeholder="Your email" required>
+          </div>
 
-        <div class="auth-row">
-          <label class="remember"><input type="checkbox" checked> Remember me</label>
-          <a class="forgot">Forgot Password?</a>
-        </div>
+          <label class="field-label" for="loginPassword">Password</label>
+          <div class="field-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <input class="field-input" id="loginPassword" type="password" placeholder="Your password" required>
+          </div>
 
-        <button class="auth-submit">Login</button>
+          <div class="auth-row">
+            <label class="remember"><input type="checkbox" id="rememberMe" checked> Remember me</label>
+            <a class="forgot">Forgot Password?</a>
+          </div>
+
+          <button class="auth-submit" type="submit" id="loginSubmitBtn">Login</button>
+        </form>
         <div class="auth-switch">Don't have an account? <a onclick="switchView('signup')">Sign Up</a></div>
       </div>
 
-      <!-- SIGNUP VIEW -->
       <div id="signupView" style="display:none">
+        <div class="auth-brand">Cleainput</div>
 
-        <button class="social-btn">
+        <button class="social-btn" type="button">
           <svg width="18" height="18" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
           Sign up with Google
         </button>
-        <button class="social-btn">
+        <button class="social-btn" type="button">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="#1a1a2e"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
           Sign up with GitHub
         </button>
 
         <div class="auth-divider">or</div>
 
-        <label class="field-label">Full Name</label>
-        <div class="field-wrap">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-          <input class="field-input" type="text" placeholder="Your full name">
-        </div>
+        <form id="signupForm" onsubmit="handleSignup(event)" novalidate>
+          <div id="signupMsg" class="auth-msg"></div>
 
-        <label class="field-label">Email</label>
-        <div class="field-wrap">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-          <input class="field-input" type="email" placeholder="Your email">
-        </div>
+          <label class="field-label" for="signupUsername">Full Name</label>
+          <div class="field-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+            <input class="field-input" id="signupUsername" type="text" placeholder="Your full name" required>
+          </div>
 
-        <label class="field-label">Password</label>
-        <div class="field-wrap" style="margin-bottom:22px">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-          <input class="field-input" type="password" placeholder="Create a password">
-        </div>
+          <label class="field-label" for="signupEmail">Email</label>
+          <div class="field-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+            <input class="field-input" id="signupEmail" type="email" placeholder="Your email" required>
+          </div>
 
-        <button class="auth-submit">Create Account</button>
+          <label class="field-label" for="signupPassword">Password</label>
+          <div class="field-wrap" style="margin-bottom:22px">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <input class="field-input" id="signupPassword" type="password" placeholder="Create a password" required>
+          </div>
+
+          <button class="auth-submit" type="submit" id="signupSubmitBtn">Create Account</button>
+        </form>
         <div class="auth-switch">Already have an account? <a onclick="switchView('login')">Sign In</a></div>
       </div>
+
     </div>
   </div>
 </div>
@@ -654,80 +777,353 @@ function closeAuth() {
     document.getElementById('authPage').classList.remove('active');
 }
 function switchView(view) {
-    document.getElementById('loginView').style.display = view === 'login' ? 'block' : 'none';
+    document.getElementById('loginView').style.display  = view === 'login'  ? 'block' : 'none';
     document.getElementById('signupView').style.display = view === 'signup' ? 'block' : 'none';
+    // Clear messages when switching
+    ['loginMsg','signupMsg'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) { el.className = 'auth-msg'; el.textContent = ''; }
+    });
 }
 </script>
 
 <script>
-const input = document.querySelector('.composer-input');
-const statusLog = document.getElementById('statusLog');
-const sendBtn = document.getElementById('sendBtn');
+const input          = document.querySelector('.composer-input');
+const statusLog      = document.getElementById('statusLog');
+const sendBtn        = document.getElementById('sendBtn');
+const imgPreviewStrip = document.getElementById('imgPreviewStrip');
+const uploadImgBtn   = document.getElementById('uploadImgBtn');
 
-// Update send button state based on input content
+// Track uploaded image files
+let uploadedImages = []; // Array of { file, dataUrl, id }
+let imgIdCounter   = 0;
+
+// ── Send button state ─────────────────────────
 function updateSendBtn() {
-    const hasText = input.innerText.trim().length > 0;
-    if (hasText) {
-        sendBtn.classList.add('has-text');
-        sendBtn.title = 'Send';
-    } else {
-        sendBtn.classList.remove('has-text');
-        sendBtn.title = 'Send';
-    }
+    const hasContent = input.innerText.trim().length > 0 || uploadedImages.length > 0;
+    sendBtn.classList.toggle('has-text', hasContent);
 }
 
 input.addEventListener('input', () => {
-    if (input.innerText.trim() === '') {
-        input.innerHTML = '';
-    }
+    if (input.innerText.trim() === '') input.innerHTML = '';
     updateSendBtn();
 });
 
-// Always opens login page on click
-function handleSendClick() {
-    openAuth('login');
+// Also allow paste of images directly into the composer
+input.addEventListener('paste', (e) => {
+    const items = e.clipboardData && e.clipboardData.items;
+    if (!items) return;
+    const imageItems = Array.from(items).filter(i => i.type.startsWith('image/'));
+    if (imageItems.length === 0) return;
+    e.preventDefault();
+    imageItems.forEach(item => {
+        const file = item.getAsFile();
+        if (file) addImageFile(file);
+    });
+});
+
+// ── Image upload handler ──────────────────────
+function handleImageUpload(event) {
+    const files = Array.from(event.target.files);
+    files.forEach(file => addImageFile(file));
+    // Reset input so same file can be re-selected
+    event.target.value = '';
 }
 
+function addImageFile(file) {
+    const id = ++imgIdCounter;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        const dataUrl = e.target.result;
+        uploadedImages.push({ file, dataUrl, id });
+        renderPreviews();
+        updateSendBtn();
+    };
+    reader.readAsDataURL(file);
+}
+
+function removeImage(id) {
+    uploadedImages = uploadedImages.filter(img => img.id !== id);
+    renderPreviews();
+    updateSendBtn();
+}
+
+function renderPreviews() {
+    imgPreviewStrip.innerHTML = '';
+    if (uploadedImages.length === 0) {
+        imgPreviewStrip.classList.remove('has-images');
+        uploadImgBtn.classList.remove('upload-active');
+        return;
+    }
+
+    imgPreviewStrip.classList.add('has-images');
+    uploadImgBtn.classList.add('upload-active');
+
+    uploadedImages.forEach(({ dataUrl, file, id }) => {
+        const thumb = document.createElement('div');
+        thumb.className = 'img-thumb';
+        thumb.innerHTML = `
+            <img src="${dataUrl}" alt="${file.name}">
+            <button class="remove-img" onclick="removeImage(${id})" title="Remove">
+                <svg width="8" height="8" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                    <line x1="1" y1="1" x2="9" y2="9"/><line x1="9" y1="1" x2="1" y2="9"/>
+                </svg>
+            </button>
+            <div class="img-name">${file.name}</div>
+        `;
+        imgPreviewStrip.appendChild(thumb);
+    });
+}
+
+// ── Drag-and-drop onto the composer ──────────
+const composerEl = document.querySelector('.composer');
+composerEl.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    composerEl.style.borderColor = 'rgba(168,85,247,0.5)';
+});
+composerEl.addEventListener('dragleave', () => {
+    composerEl.style.borderColor = '';
+});
+composerEl.addEventListener('drop', (e) => {
+    e.preventDefault();
+    composerEl.style.borderColor = '';
+    const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+    files.forEach(f => addImageFile(f));
+});
+
+// ── Send / Auth gate ──────────────────────────
+// FIXED: Gate check redirects unauthenticated state, fires workflow if valid session exists
+function handleSendClick() {
+    const session = loadSession();
+    if (session) {
+        submitUserPrompt();
+    } else {
+        openAuth('login');
+    }
+}
+
+// ── Submit with validation (rule preserved) ───
 async function submitUserPrompt() {
     const promptText = input.innerText.trim();
+
+    // ✅ Rule preserved: text is always required regardless of images
     if (!promptText) {
         statusLog.textContent = "Please describe your layout concept first.";
         return;
     }
 
-    statusLog.textContent = "Passing description to C++ AST parsing engine via Cerebrium...";
+    // FIXED: Appended token authorization from local session profile state
+    const session = loadSession();
+    if (!session || !session.token) {
+        statusLog.textContent = "Please sign in to submit your project.";
+        openAuth('login');
+        return;
+    }
 
-    const structuralPayload = {
-        type: "TouchableOpacity",
-        content: promptText,
-        style: "flex:1,backgroundColor:'#a855f7',justifyContent:'center',borderRadius:12"
+    statusLog.textContent = "Sending to Cleainput engine...";
+
+    const payload = {
+        prompt: promptText,
+        images: uploadedImages.map(img => ({ name: img.file.name, data: img.dataUrl }))
     };
 
     try {
-        const response = await fetch('https://run.cerebrium.ai/cleaninput-ai-engine/predict', {
+        const response = await fetch(`${CF_WORKER_URL}/build`, {
             method: 'POST',
-            headers: {
+            headers: { 
                 'Content-Type': 'application/json',
-                'Authorization': 'Bearer YOUR_CEREBRIUM_JWT_TOKEN'
+                'Authorization': `Bearer ${session.token}`
             },
-            body: JSON.stringify({ payload: structuralPayload })
+            body: JSON.stringify(payload)
         });
 
         const data = await response.json();
-        if (data.status === "success") {
-            statusLog.innerHTML = `<span style="color:#22c55e;">Compilation Success! React Native source tree established.</span>`;
-            console.log(data.react_native_source);
+        if (data.success) {
+            statusLog.innerHTML = `<span style="color:#22c55e;">Build queued successfully!</span>`;
         } else {
-            statusLog.textContent = "Compilation Failure: " + (data.error_log || data.message);
+            statusLog.textContent = "Error: " + (data.error || "Something went wrong.");
         }
     } catch (err) {
-        statusLog.textContent = "Routing Failure: " + err.message;
+        statusLog.textContent = "Request failed: " + err.message;
     }
 }
 </script>
+
+<script>
+// ── CONFIG ──────────────────────────────────────
+const CF_WORKER_URL = 'https://cleainput.officialmykeee.workers.dev';
+const SESSION_KEY = 'cleainput_session';
+
+// ── UTILITY HELPERS ──────────────────────────────
+function showMsg(id, text, type /* 'success' | 'error' */) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = text;
+    el.className   = 'auth-msg ' + type;
+}
+
+function setLoading(btnId, loading) {
+    const btn = document.getElementById(btnId);
+    if (!btn) return;
+    btn.disabled    = loading;
+    btn.textContent = loading
+        ? (btnId === 'loginSubmitBtn' ? 'Signing in…' : 'Creating account…')
+        : (btnId === 'loginSubmitBtn' ? 'Login'        : 'Create Account');
+}
+
+// ── SESSION MANAGEMENT ────────────────────────────
+function saveSession(userData, remember) {
+    const payload = JSON.stringify(userData);
+    if (remember) {
+        localStorage.setItem(SESSION_KEY, payload);
+    } else {
+        sessionStorage.setItem(SESSION_KEY, payload);
+        localStorage.removeItem(SESSION_KEY);
+    }
+}
+
+function loadSession() {
+    const raw = localStorage.getItem(SESSION_KEY) || sessionStorage.getItem(SESSION_KEY);
+    try { return raw ? JSON.parse(raw) : null; } catch { return null; }
+}
+
+function clearSession() {
+    localStorage.removeItem(SESSION_KEY);
+    sessionStorage.removeItem(SESSION_KEY);
+}
+
+// ── HEADER UI UPDATE ──────────────────────────────
+function updateHeaderUI(session) {
+    const signinBtn  = document.getElementById('headerSignin');
+    const signupBtn  = document.getElementById('headerSignup');
+    const userBtn    = document.getElementById('headerUser');
+    const logoutBtn  = document.getElementById('headerLogout');
+    const usernameEl = document.getElementById('headerUsername');
+    const avatarEl   = document.getElementById('headerAvatar');
+
+    if (session) {
+        signinBtn.style.display  = 'none';
+        signupBtn.style.display  = 'none';
+        userBtn.style.display    = 'flex';
+        logoutBtn.style.display  = 'inline-flex';
+        usernameEl.textContent   = session.username || session.email.split('@')[0];
+        avatarEl.textContent     = (session.username || session.email)[0].toUpperCase();
+    } else {
+        signinBtn.style.display  = '';
+        signupBtn.style.display  = '';
+        userBtn.style.display    = 'none';
+        logoutBtn.style.display  = 'none';
+    }
+}
+
+// ── LOGOUT ────────────────────────────────────────
+function logoutUser() {
+    clearSession();
+    updateHeaderUI(null);
+}
+
+// ── SIGNUP ────────────────────────────────────────
+async function handleSignup(event) {
+    event.preventDefault();
+
+    const username = document.getElementById('signupUsername').value.trim();
+    const email    = document.getElementById('signupEmail').value.trim();
+    const password = document.getElementById('signupPassword').value;
+
+    if (!username) return showMsg('signupMsg', 'Full name is required.', 'error');
+    if (!email || !/\S+@\S+\.\S+/.test(email)) return showMsg('signupMsg', 'Enter a valid email address.', 'error');
+    if (password.length < 8) return showMsg('signupMsg', 'Password must be at least 8 characters.', 'error');
+
+    setLoading('signupSubmitBtn', true);
+    showMsg('signupMsg', '', '');
+
+    try {
+        const res = await fetch(`${CF_WORKER_URL}/auth/signup`, {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ username, email, password })
+        });
+
+        const data = res.ok ? await res.json() : null;
+
+        if (res.ok && data && data.success) {
+            saveSession({
+                profile_id: data.profile_id,
+                username: data.username || username,
+                email,
+                token: data.token
+            }, false);
+
+            updateHeaderUI({ username: data.username || username, email });
+            showMsg('signupMsg', 'Account created! Loading your workspace... 🎉', 'success');
+
+            setTimeout(() => { window.location.href = 'prompt.html'; }, 1000);
+        } else {
+            showMsg('signupMsg', (data && data.error) || 'Sign-up failed. Please try again.', 'error');
+        }
+    } catch (err) {
+        showMsg('signupMsg', 'Network error — please check your connection.', 'error');
+        console.error('[signup]', err);
+    } finally {
+        setLoading('signupSubmitBtn', false);
+    }
+}
+
+// ── LOGIN ─────────────────────────────────────────
+async function handleLogin(event) {
+    event.preventDefault();
+
+    const email    = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    const remember = document.getElementById('rememberMe').checked;
+
+    if (!email || !/\S+@\S+\.\S+/.test(email)) return showMsg('loginMsg', 'Enter a valid email address.', 'error');
+    if (!password) return showMsg('loginMsg', 'Password is required.', 'error');
+
+    setLoading('loginSubmitBtn', true);
+    showMsg('loginMsg', '', '');
+
+    try {
+        const res = await fetch(`${CF_WORKER_URL}/auth/login`, {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ email, password })
+        });
+
+        const data = res.ok ? await res.json() : null;
+
+        if (res.ok && data && data.success) {
+            saveSession({
+                profile_id: data.profile_id,
+                username: data.username || email.split('@')[0],
+                email,
+                token: data.token
+            }, remember);
+
+            updateHeaderUI({ username: data.username || email.split('@')[0], email });
+            showMsg('loginMsg', 'Welcome back! Opening workspace... 👋', 'success');
+
+            setTimeout(() => { window.location.href = 'prompt.html'; }, 1000);
+        } else {
+            showMsg('loginMsg', (data && data.error) || 'Incorrect email or password.', 'error');
+        }
+    } catch (err) {
+        showMsg('loginMsg', 'Network error — please check your connection.', 'error');
+        console.error('[login]', err);
+    } finally {
+        setLoading('loginSubmitBtn', false);
+    }
+}
+
+// ── INIT: restore session on page load ───────────
+(function init() {
+    const session = loadSession();
+    if (session) updateHeaderUI(session);
+})();
+</script>
+
 </body>
 </html>
-
 
 
 
