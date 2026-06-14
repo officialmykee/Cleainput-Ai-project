@@ -4,11 +4,11 @@
 #include <string>
 #include <algorithm>
 #include <cstdint>
+#include <cstring>
 
 class LocalAabModifier {
 public:
     static bool OverwriteBundle(std::vector<char>& aabBuffer, const std::string& targetPath, const std::string& newJsCode) {
-        // Find the asset descriptor location path index inside the bundle binary matrix
         auto it = std::search(aabBuffer.begin(), aabBuffer.end(), targetPath.begin(), targetPath.end());
         
         if (it == aabBuffer.end()) {
@@ -18,7 +18,6 @@ public:
 
         size_t pathIndex = std::distance(aabBuffer.begin(), it);
         
-        // Scan backward to pinpoint the Zip Local File Header magic sequence signature base (0x04034b50)
         size_t headerStart = pathIndex;
         bool foundHeader = false;
         while (headerStart > 4) {
@@ -37,31 +36,33 @@ public:
             return false;
         }
 
-        // Map layout metadata sizing offsets out of standard ZIP allocations
-        uint32_t* compressedSize = reinterpret_cast<uint32_t*>(&aabBuffer[headerStart + 18]);
-        uint32_t* uncompressedSize = reinterpret_cast<uint32_t*>(&aabBuffer[headerStart + 22]);
-        uint16_t fileNameLength = *reinterpret_cast<uint16_t*>(&aabBuffer[headerStart + 26]);
-        uint16_t extraFieldLength = *reinterpret_cast<uint16_t*>(&aabBuffer[headerStart + 28]);
+        // FIX: Read standard little-endian ZIP metadata safely using safe copies to prevent alignment crashes
+        uint32_t uncompressedSize = 0;
+        std::memcpy(&uncompressedSize, &aabBuffer[headerStart + 22], 4);
+
+        uint16_t fileNameLength = 0;
+        std::memcpy(&fileNameLength, &aabBuffer[headerStart + 26], 2);
+
+        uint16_t extraFieldLength = 0;
+        std::memcpy(&extraFieldLength, &aabBuffer[headerStart + 28], 2);
 
         size_t dataStartOffset = headerStart + 30 + fileNameLength + extraFieldLength;
 
-        // Bound-check constraints protection layer
-        if (newJsCode.size() > *uncompressedSize) {
+        if (newJsCode.size() > uncompressedSize) {
             std::cerr << "New payload size (" << newJsCode.size() 
                       << " bytes) exceeds master template allocation layout bounds (" 
-                      << *uncompressedSize << " bytes)." << std::endl;
+                      << uncompressedSize << " bytes)." << std::endl;
             return false;
         }
 
-        // Direct low-overhead byte footprint substitution
         std::copy(newJsCode.begin(), newJsCode.end(), aabBuffer.begin() + dataStartOffset);
 
-        // Blank out remaining space variations safely using space pads to avoid structural layout shift errors
-        size_t remainingBytes = *uncompressedSize - newJsCode.size();
+        size_t remainingBytes = uncompressedSize - newJsCode.size();
         std::fill_n(aabBuffer.begin() + dataStartOffset + newJsCode.size(), remainingBytes, ' ');
 
-        // Sync header parameters back down to system boundaries
-        *compressedSize = static_cast<uint32_t>(*uncompressedSize); 
+        // FIX: Safely update compressed size parameters back into the byte vector layout
+        uint32_t compressedSizeUpdate = uncompressedSize;
+        std::memcpy(&aabBuffer[headerStart + 18], &compressedSizeUpdate, 4);
 
         return true;
     }
@@ -93,7 +94,6 @@ int main(int argc, char* argv[]) {
     }
     file.close();
 
-    // Standard structural path variable identifier inside Android App Bundles
     std::string targetAsset = "base/assets/index.android.bundle";
     
     if (LocalAabModifier::OverwriteBundle(buffer, targetAsset, newCode)) {
@@ -110,6 +110,5 @@ int main(int argc, char* argv[]) {
 
     return 1;
 }
-
 
 
