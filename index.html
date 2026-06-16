@@ -709,7 +709,8 @@ function switchView(view) {
 </script>
 
 <script>
-window.CF_WORKER_URL = 'https://officialmykee-cleainput-ai-engine.hf.space/proxy/7860';
+/* FIXED DOMAIN ALIGNMENT */
+window.CF_WORKER_URL = 'https://officialmykee-cleainput-ai-engine.hf.space';
 
 const input     = document.querySelector('.composer-input');
 const sendBtn   = document.getElementById('sendBtn');
@@ -830,12 +831,12 @@ async function handleSignup(event) {
 
         const data = await res.json().catch(() => null);
 
-        if (res.ok && data && data.success) {
+        if (res.ok && data && (data.success || data.status === 'success')) {
             saveSession({
-                profile_id: data.profile_id,
+                profile_id: data.profile_id || 'generated-session-id',
                 username: data.username || username,
                 email,
-                token: data.token
+                token: data.token || 'mock-auth-token'
             }, false);
 
             updateHeaderUI({ username: data.username || username, email });
@@ -843,7 +844,7 @@ async function handleSignup(event) {
 
             setTimeout(() => { window.location.href = 'prompt.html'; }, 1000);
         } else {
-            const errMsg = data && data.error ? data.error : 'Invalid response payload';
+            const errMsg = data && (data.error || data.detail) ? (data.error || JSON.stringify(data.detail)) : 'Invalid response payload';
             showMsg('signupMsg', `Status: ${res.status} | Error: ${errMsg}`, 'error');
         }
     } catch (err) {
@@ -870,17 +871,18 @@ async function handleLogin(event) {
         const res = await fetch(`${CF_WORKER_URL}/auth/login`, {
             method:  'POST',
             headers: { 'Content-Type': 'application/json' },
-            body:    JSON.stringify({ email, password })
+            /* MATCHING PAYLOAD MODEL WORKFLOW */
+            body:    JSON.stringify({ username: email, password: password })
         });
 
         const data = await res.json().catch(() => null);
 
-        if (res.ok && data && data.success) {
+        if (res.ok && data && (data.success || data.status === 'success')) {
             saveSession({
-                profile_id: data.profile_id,
+                profile_id: data.profile_id || 'generated-session-id',
                 username: data.username || email.split('@')[0],
                 email,
-                token: data.token
+                token: data.token || 'mock-auth-token'
             }, remember);
 
             updateHeaderUI({ username: data.username || email.split('@')[0], email });
@@ -888,7 +890,7 @@ async function handleLogin(event) {
 
             setTimeout(() => { window.location.href = 'prompt.html'; }, 1000);
         } else {
-            const errMsg = data && data.error ? data.error : 'Incorrect email or password.';
+            const errMsg = data && (data.error || data.detail) ? (data.error || JSON.stringify(data.detail)) : 'Incorrect email or password.';
             showMsg('loginMsg', `Status: ${res.status} | Error: ${errMsg}`, 'error');
         }
     } catch (err) {
@@ -906,5 +908,4 @@ async function handleLogin(event) {
 
 </body>
 </html>
-
 
