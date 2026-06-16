@@ -604,13 +604,11 @@ h1 .highlight{
     <div id="statusLog"></div>
 </div>
 
-<!-- Auth Full Page -->
 <div class="auth-page" id="authPage">
   <button class="auth-close" onclick="closeAuth()">✕</button>
   <div class="auth-inner">
     <div class="auth-card">
 
-      <!-- LOGIN VIEW -->
       <div id="loginView">
         <div class="auth-brand">Cleainput</div>
         <button class="social-btn" type="button">
@@ -649,7 +647,6 @@ h1 .highlight{
         <div class="auth-switch">Don't have an account? <a onclick="switchView('signup')">Sign Up</a></div>
       </div>
 
-      <!-- SIGNUP VIEW -->
       <div id="signupView" style="display:none">
         <div class="auth-brand">Cleainput</div>
         <button class="social-btn" type="button">
@@ -693,10 +690,6 @@ h1 .highlight{
   </div>
 </div>
 
-
-<!-- ─────────────────────────────────────────────
-     SCRIPT 1 — Auth page navigation helpers
-───────────────────────────────────────────── -->
 <script>
 function openAuth(view) {
     document.getElementById('authPage').classList.add('active');
@@ -715,12 +708,8 @@ function switchView(view) {
 }
 </script>
 
-
-<!-- ─────────────────────────────────────────────
-     SCRIPT 2 — Composer input / send button
-───────────────────────────────────────────── -->
 <script>
-window.CF_WORKER_URL = 'https://officialmykee-cleainput-ai-project.hf.space';
+window.CF_WORKER_URL = 'https://officialmykee-cleainput-ai-engine.hf.space/proxy/7860';
 
 const input     = document.querySelector('.composer-input');
 const sendBtn   = document.getElementById('sendBtn');
@@ -751,10 +740,6 @@ function handleSendClick() {
 }
 </script>
 
-
-<!-- ─────────────────────────────────────────────
-     SCRIPT 3 — Auth logic & Mobile Diagnostics
-───────────────────────────────────────────── -->
 <script>
 const SESSION_KEY = 'cleainput_session';
 
@@ -822,7 +807,6 @@ function logoutUser() {
     updateHeaderUI(null);
 }
 
-// ── DIAGNOSTIC SIGNUP FOR MOBILE ──────────────────
 async function handleSignup(event) {
     event.preventDefault();
 
@@ -844,7 +828,6 @@ async function handleSignup(event) {
             body:    JSON.stringify({ username, email, password })
         });
 
-        // Safe JSON parsing that won't throw if the server returns plain text or HTML
         const data = await res.json().catch(() => null);
 
         if (res.ok && data && data.success) {
@@ -860,7 +843,6 @@ async function handleSignup(event) {
 
             setTimeout(() => { window.location.href = 'prompt.html'; }, 1000);
         } else {
-            // Expose detailed failure specs directly onto the mobile view row
             const errMsg = data && data.error ? data.error : 'Invalid response payload';
             showMsg('signupMsg', `Status: ${res.status} | Error: ${errMsg}`, 'error');
         }
@@ -924,4 +906,5 @@ async function handleLogin(event) {
 
 </body>
 </html>
+
 
