@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cleaninput</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 html, body { height: 100%; min-height: 100%; font-family: 'Inter', sans-serif; background: #000; overflow: hidden; }
 body { display: flex; flex-direction: column; align-items: center; height: 100dvh; }
@@ -21,7 +21,6 @@ body { display: flex; flex-direction: column; align-items: center; height: 100dv
 .drawer-nav { padding: 0 8px; display: flex; flex-direction: column; gap: 1px; }
 .nav-item { display: flex; align-items: center; gap: 14px; padding: 11px 12px; border-radius: 10px; cursor: pointer; transition: background .12s; color: #bbb; font-size: 14px; font-weight: 450; letter-spacing: .01em; border: none; background: transparent; width: 100%; text-align: left; appearance: none; }
 .nav-item:hover { background: rgba(255,255,255,.05); color: #fff; }
-.nav-item:hover .nav-icon { color: #ddd; }
 .nav-icon { width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; color: #777; transition: color .12s; }
 .nav-icon svg { width: 18px; height: 18px; }
 .drawer-section-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 12px 5px; }
@@ -32,9 +31,15 @@ body { display: flex; flex-direction: column; align-items: center; height: 100dv
 .drawer-body { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
 .drawer-task-item { display: flex; align-items: center; gap: 11px; padding: 9px 12px; margin: 0 8px; border-radius: 10px; cursor: pointer; transition: background .12s; position: relative; }
 .drawer-task-item:hover { background: rgba(255,255,255,.05); }
+.drawer-task-item.active-project { background: rgba(255,255,255,.06); }
+.drawer-task-item.active-project .drawer-task-label { color: #fff; }
 .drawer-task-icon { width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; color: #555; }
 .drawer-task-icon svg { width: 16px; height: 16px; }
 .drawer-task-label { flex: 1; font-size: 13px; color: #888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.drawer-task-more { width: 26px; height: 26px; border: none; background: transparent; color: #444; cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: 6px; transition: background .12s, color .12s; appearance: none; flex-shrink: 0; opacity: 0; }
+.drawer-task-item:hover .drawer-task-more { opacity: 1; }
+.drawer-task-more svg { width: 14px; height: 14px; }
+.drawer-task-more:hover { background: rgba(255,255,255,.08); color: #aaa; }
 .drawer-footer { padding: 12px 16px 22px; border-top: 1px solid rgba(255,255,255,.05); display: flex; align-items: center; gap: 10px; }
 .drawer-avatar { width: 34px; height: 34px; border-radius: 50%; background: #6d28d9; display: inline-flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; }
 .drawer-username { flex: 1; font-size: 13px; font-weight: 500; color: #aaa; }
@@ -50,9 +55,112 @@ body { display: flex; flex-direction: column; align-items: center; height: 100dv
 .ctx-icon { width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .ctx-icon svg { width: 16px; height: 16px; }
 
-/* ── Toast ── */
+/* ── Copy toast ── */
 .copy-toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(10px); background: #1a1a1a; border: 1px solid rgba(255,255,255,.12); color: #e8e8e8; font-size: 13px; font-weight: 500; padding: 9px 18px; border-radius: 999px; opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; z-index: 600; white-space: nowrap; }
 .copy-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ── Create Project Modal — FULL SCREEN ── */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: #000;
+  z-index: 700;
+  display: flex; flex-direction: column;
+  opacity: 0; pointer-events: none;
+  transition: opacity .22s;
+}
+.modal-overlay.open { opacity: 1; pointer-events: auto; }
+
+.modal-card {
+  flex: 1;
+  display: flex; flex-direction: column;
+  width: 100%;
+  padding: 0;
+  overflow-y: auto;
+  transform: translateY(20px);
+  transition: transform .25s cubic-bezier(.4,0,.2,1);
+}
+.modal-overlay.open .modal-card { transform: translateY(0); }
+
+.modal-topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 56px 24px 0;
+  position: sticky; top: 0; background: #000; z-index: 1;
+  padding-bottom: 12px;
+}
+.modal-title { font-size: 24px; font-weight: 700; color: #fff; letter-spacing: -.02em; }
+.modal-close {
+  width: 36px; height: 36px; border: 1px solid rgba(255,255,255,.1); background: #111; color: #888; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; border-radius: 50%;
+  transition: background .12s, color .12s; appearance: none;
+}
+.modal-close:hover { background: #1a1a1a; color: #ccc; }
+.modal-close svg { width: 16px; height: 16px; }
+
+.modal-body { flex: 1; display: flex; flex-direction: column; padding: 20px 24px; gap: 24px; }
+
+.modal-folder-wrap { display: flex; justify-content: center; padding: 12px 0 4px; }
+.modal-folder {
+  width: 88px; height: 88px; border-radius: 22px;
+  background: #111; border: 1px solid rgba(255,255,255,.08);
+  display: flex; align-items: center; justify-content: center;
+}
+.modal-folder svg { width: 40px; height: 40px; color: #888; }
+
+.modal-field { display: flex; flex-direction: column; gap: 8px; }
+.modal-label { font-size: 13px; font-weight: 600; color: #888; letter-spacing: .04em; text-transform: uppercase; }
+.modal-label .optional { font-weight: 400; color: #444; text-transform: none; letter-spacing: 0; font-size: 13px; }
+.modal-input {
+  width: 100%; background: #111; border: 1px solid rgba(255,255,255,.08);
+  border-radius: 14px; padding: 15px 16px; font-size: 16px; color: #fff;
+  font-family: 'Inter', sans-serif; outline: none; transition: border-color .15s;
+}
+.modal-input::placeholder { color: #3a3a3a; }
+.modal-input:focus { border-color: rgba(255,255,255,.22); }
+.modal-textarea {
+  width: 100%; min-height: 140px; resize: none;
+  background: #111; border: 1px solid rgba(255,255,255,.08);
+  border-radius: 14px; padding: 15px 16px; font-size: 15px; color: #fff;
+  font-family: 'Inter', sans-serif; line-height: 1.65; outline: none; transition: border-color .15s;
+}
+.modal-textarea::placeholder { color: #3a3a3a; line-height: 1.65; }
+.modal-textarea:focus { border-color: rgba(255,255,255,.22); }
+
+.modal-footer {
+  padding: 16px 24px 40px;
+  background: #000;
+  position: sticky; bottom: 0;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.modal-btn-create {
+  width: 100%; padding: 16px; border-radius: 16px; font-size: 16px; font-weight: 700;
+  cursor: pointer; border: none; appearance: none; transition: background .15s, opacity .15s;
+  background: #fff; color: #000; letter-spacing: -.01em;
+}
+.modal-btn-create:hover { background: #e8e8e8; }
+.modal-btn-create:disabled { opacity: .25; cursor: default; }
+.modal-btn-cancel {
+  width: 100%; padding: 14px; border-radius: 16px; font-size: 15px; font-weight: 600;
+  cursor: pointer; border: 1px solid rgba(255,255,255,.08); background: transparent; color: #666;
+  transition: background .15s;
+}
+.modal-btn-cancel:hover { background: rgba(255,255,255,.04); color: #888; }
+
+/* ── Active Project Banner ── */
+.active-project-banner {
+  width: 100%; max-width: 620px; align-self: center;
+  display: none; align-items: center; gap: 10px;
+  padding: 10px 16px;
+  background: #111;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 12px;
+  margin: 8px 24px 0;
+}
+.active-project-banner.show { display: flex; }
+.apb-icon { width: 18px; height: 18px; color: #6d28d9; flex-shrink: 0; }
+.apb-icon svg { width: 18px; height: 18px; }
+.apb-name { flex: 1; font-size: 13px; font-weight: 600; color: #ccc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.apb-clear { border: none; background: transparent; color: #444; cursor: pointer; font-size: 13px; padding: 2px 4px; border-radius: 5px; transition: color .12s; }
+.apb-clear:hover { color: #888; }
 
 /* ── Tab header ── */
 .tab-header { width: 100%; z-index: 100; display: flex; flex-direction: column; align-items: center; padding: 10px 24px 0; background: #000; gap: 8px; flex-shrink: 0; }
@@ -94,6 +202,11 @@ body { display: flex; flex-direction: column; align-items: center; height: 100dv
 .thought-line:nth-child(1) { width: 88%; } .thought-line:nth-child(2) { width: 72%; animation-delay: 0.15s; }
 @keyframes shimmer { 0% { background-position: 200% center; } 100% { background-position: -200% center; } }
 
+/* ── Empty state ── */
+.empty-state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 40px 24px; }
+.empty-state-title { font-size: 22px; font-weight: 700; color: #fff; letter-spacing: -.02em; text-align: center; }
+.empty-state-sub { font-size: 14px; color: #555; text-align: center; line-height: 1.5; max-width: 260px; }
+
 /* ── Composer ── */
 .composer-wrapper { width: 100%; padding: 8px 0 20px; display: flex; justify-content: center; background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.96) 30%, #000 100%); z-index: 100; flex-shrink: 0; }
 .composer { background: #0a0a0a; border-radius: 20px; padding: 18px 18px 14px; width: 100%; max-width: 620px; margin: 0 24px; box-shadow: 0 8px 40px rgba(0,0,0,.6), 0 2px 8px rgba(0,0,0,.4); border: 1px solid rgba(255,255,255,.08); }
@@ -119,27 +232,10 @@ body { display: flex; flex-direction: column; align-items: center; height: 100dv
 .upload-preview-badge span { max-width: 120px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .upload-preview-badge .close-upload { cursor: pointer; color: #ef4444; font-weight: bold; }
 
-/* ─────────────────────────────────────────
-   PREVIEW VIEW
-───────────────────────────────────────── */
+/* ── PREVIEW VIEW ── */
 .preview-view { background: #000; position: relative; }
-
-/* full white canvas */
-.preview-canvas-wrap {
-  flex: 1;
-  overflow: hidden;
-  position: relative;
-  background: #fff;
-}
-
-/* skeleton shimmer — light mode */
-.preview-skeleton {
-  position: absolute; inset: 0;
-  background: #fff;
-  padding: 28px 20px;
-  display: flex; flex-direction: column; gap: 14px;
-  transition: opacity .4s;
-}
+.preview-canvas-wrap { flex: 1; overflow: hidden; position: relative; background: #fff; }
+.preview-skeleton { position: absolute; inset: 0; background: #fff; padding: 28px 20px; display: flex; flex-direction: column; gap: 14px; transition: opacity .4s; }
 .preview-skeleton.hidden { opacity: 0; pointer-events: none; }
 .skel { border-radius: 8px; background: linear-gradient(90deg, #e8e8e8 25%, #f2f2f2 50%, #e8e8e8 75%); background-size: 200% 100%; animation: shimmer 1.6s ease-in-out infinite; }
 .skel-header { height: 28px; width: 50%; border-radius: 8px; }
@@ -151,63 +247,15 @@ body { display: flex; flex-direction: column; align-items: center; height: 100dv
 .skel-line { height: 10px; }
 .skel-line.w80 { width: 80%; } .skel-line.w55 { width: 55%; } .skel-line.w70 { width: 70%; } .skel-line.w40 { width: 40%; } .skel-line.w90 { width: 90%; } .skel-line.w60 { width: 60%; }
 .skel-card { height: 64px; border-radius: 12px; }
-
-/* Hello World screen */
-.preview-app {
-  position: absolute; inset: 0;
-  background: #fff;
-  display: flex; flex-direction: column;
-  font-family: 'Inter', sans-serif;
-  opacity: 0; transition: opacity .5s .1s; pointer-events: none;
-}
+.preview-app { position: absolute; inset: 0; background: #fff; display: flex; flex-direction: column; font-family: 'Inter', sans-serif; opacity: 0; transition: opacity .5s .1s; pointer-events: none; }
 .preview-app.visible { opacity: 1; pointer-events: auto; }
-.preview-app-bar {
-  padding: 16px 20px 12px;
-  border-bottom: 1px solid #f0f0f0;
-  display: flex; align-items: center; justify-content: space-between;
-}
-.preview-app-bar-title { font-size: 17px; font-weight: 700; color: #111; letter-spacing: -.01em; }
-.preview-app-bar-dot { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; }
-.preview-body {
-  flex: 1; display: flex; flex-direction: column;
-  align-items: center; justify-content: center; gap: 8px;
-  padding: 24px;
-}
-.preview-hello {
-  font-size: 32px; font-weight: 700; color: #111;
-  letter-spacing: -.02em; text-align: center;
-}
-.preview-sub {
-  font-size: 14px; color: #999; font-weight: 400; text-align: center;
-}
-
-/* ── Install bottom nav ── */
-.install-nav {
-  flex-shrink: 0;
-  width: 100%;
-  padding: 12px 20px 24px;
-  background: #000;
-  border-top: 1px solid rgba(255,255,255,.06);
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  align-items: center;
-}
-.install-nav-label {
-  font-size: 11px; font-weight: 600; color: #444; letter-spacing: .07em; text-transform: uppercase; align-self: flex-start;
-}
+.preview-body { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 24px; }
+.preview-hello { font-size: 32px; font-weight: 700; color: #111; letter-spacing: -.02em; text-align: center; }
+.preview-sub { font-size: 14px; color: #999; font-weight: 400; text-align: center; }
+.install-nav { flex-shrink: 0; width: 100%; padding: 12px 20px 24px; background: #000; border-top: 1px solid rgba(255,255,255,.06); display: flex; flex-direction: column; gap: 10px; align-items: center; }
+.install-nav-label { font-size: 11px; font-weight: 600; color: #444; letter-spacing: .07em; text-transform: uppercase; align-self: flex-start; }
 .install-btn-row { display: flex; gap: 10px; width: 100%; max-width: 380px; }
-.install-btn {
-  flex: 1;
-  display: flex; align-items: center; justify-content: center; gap: 9px;
-  padding: 13px 0;
-  border-radius: 14px;
-  border: 1px solid rgba(255,255,255,.09);
-  background: #111;
-  cursor: pointer;
-  transition: background .15s, border-color .15s, transform .1s;
-  appearance: none;
-}
+.install-btn { flex: 1; display: flex; align-items: center; justify-content: center; gap: 9px; padding: 13px 0; border-radius: 14px; border: 1px solid rgba(255,255,255,.09); background: #111; cursor: pointer; transition: background .15s, border-color .15s, transform .1s; appearance: none; }
 .install-btn:hover { background: #1a1a1a; border-color: rgba(255,255,255,.14); }
 .install-btn:active { transform: scale(0.97); }
 .install-btn-icon { width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
@@ -217,11 +265,78 @@ body { display: flex; flex-direction: column; align-items: center; height: 100dv
 .install-btn-big { font-size: 13px; color: #e0e0e0; font-weight: 600; }
 .install-btn.apk .install-btn-icon { color: #a3e635; }
 .install-btn.ipa .install-btn-icon { color: #60a5fa; }
+
+/* ── Delete confirm ── */
+.delete-confirm-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 800;
+  display: flex; align-items: flex-end; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity .2s;
+  backdrop-filter: blur(4px);
+}
+.delete-confirm-overlay.open { opacity: 1; pointer-events: auto; }
+.delete-confirm-sheet {
+  background: #161616; border: 1px solid rgba(255,255,255,.08);
+  border-radius: 22px 22px 0 0; width: 100%; padding: 24px 24px 40px;
+  display: flex; flex-direction: column; gap: 16px;
+  transform: translateY(100%); transition: transform .25s cubic-bezier(.4,0,.2,1);
+}
+.delete-confirm-overlay.open .delete-confirm-sheet { transform: translateY(0); }
+.delete-confirm-title { font-size: 18px; font-weight: 700; color: #fff; }
+.delete-confirm-sub { font-size: 14px; color: #666; line-height: 1.5; }
+.delete-confirm-btn {
+  width: 100%; padding: 15px; border-radius: 14px; font-size: 15px; font-weight: 600;
+  cursor: pointer; border: none; appearance: none; transition: background .15s;
+}
+.delete-confirm-btn.confirm { background: #ef4444; color: #fff; }
+.delete-confirm-btn.confirm:hover { background: #dc2626; }
+.delete-confirm-btn.cancel-del { background: #1f1f1f; color: #bbb; border: 1px solid rgba(255,255,255,.08); }
+.delete-confirm-btn.cancel-del:hover { background: #2a2a2a; }
 </style>
 </head>
 <body>
 
 <div class="copy-toast" id="copyToast">Link copied!</div>
+
+<!-- Delete Confirm Sheet -->
+<div class="delete-confirm-overlay" id="deleteConfirmOverlay">
+  <div class="delete-confirm-sheet">
+    <div class="delete-confirm-title">Delete project?</div>
+    <div class="delete-confirm-sub" id="deleteConfirmSub">This will permanently delete the project and all its messages.</div>
+    <button class="delete-confirm-btn confirm" onclick="confirmDelete()">Delete</button>
+    <button class="delete-confirm-btn cancel-del" onclick="closeDeleteConfirm()">Cancel</button>
+  </div>
+</div>
+
+<!-- Create Project Modal — FULL SCREEN -->
+<div class="modal-overlay" id="projectModalOverlay">
+  <div class="modal-card">
+    <div class="modal-topbar">
+      <span class="modal-title">New project</span>
+      <button class="modal-close" onclick="closeProjectModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-folder-wrap">
+        <div class="modal-folder">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+        </div>
+      </div>
+      <div class="modal-field">
+        <label class="modal-label">Project name</label>
+        <input type="text" class="modal-input" id="projectNameInput" placeholder="e.g. Fitness Tracker App" oninput="updateCreateBtn()" autocomplete="off">
+      </div>
+      <div class="modal-field">
+        <label class="modal-label">Instructions <span class="optional">(optional)</span></label>
+        <textarea class="modal-textarea" id="projectInstructionsInput" placeholder="Keep responses concise and professional.&#10;Use our brand voice from the attached guidelines.&#10;Always provide sources for important conclusions.&#10;Never publish without approval."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn-create" id="createProjectBtn" disabled onclick="createProject()">Create project</button>
+      <button class="modal-btn-cancel" onclick="closeProjectModal()">Cancel</button>
+    </div>
+  </div>
+</div>
 
 <!-- Context menu -->
 <div class="ctx-menu" id="ctxMenu">
@@ -242,7 +357,7 @@ body { display: flex; flex-direction: column; align-items: center; height: 100dv
 <div class="drawer" id="drawer">
   <div class="drawer-header"></div>
   <div class="drawer-nav">
-    <button class="nav-item">
+    <button class="nav-item" onclick="startNewTask()">
       <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></span>
       New task
     </button>
@@ -250,11 +365,13 @@ body { display: flex; flex-direction: column; align-items: center; height: 100dv
   <div class="drawer-body">
     <div class="drawer-section-header">
       <span class="drawer-section-label">Projects</span>
-      <button class="section-action-btn" title="New project"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+      <button class="section-action-btn" title="New project" onclick="openProjectModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
     </div>
-    <div class="drawer-task-item">
-      <span class="drawer-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg></span>
-      <span class="drawer-task-label">New project</span>
+    <div id="projectsList">
+      <div class="drawer-task-item" onclick="openProjectModal()" style="opacity:0.5;">
+        <span class="drawer-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg></span>
+        <span class="drawer-task-label">New project</span>
+      </div>
     </div>
     <div class="drawer-section-header" style="margin-top:6px;">
       <span class="drawer-section-label">Tasks</span>
@@ -268,13 +385,19 @@ body { display: flex; flex-direction: column; align-items: center; height: 100dv
 </div>
 
 <!-- Tab header -->
-<div class="tab-header">
-  <div class="tab-toprow">
+<div class="tab-header" id="tabHeader">
+  <div class="tab-toprow" id="tabToprow">
     <button class="hamburger-btn" onclick="openDrawer()"><span></span><span></span><span></span></button>
     <div class="coin-credit">
       <span class="coin-icon"><span class="coin-disc"></span></span>
       <span class="coin-count">10</span>
     </div>
+  </div>
+  <!-- Active project banner -->
+  <div class="active-project-banner" id="activeProjectBanner">
+    <span class="apb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
+    <span class="apb-name" id="activeProjectName"></span>
+    <button class="apb-clear" onclick="clearActiveProject()" title="Clear project">✕</button>
   </div>
   <div class="tab-bar">
     <button class="tab-btn active" onclick="switchTab(this,'chat')">Chat</button>
@@ -282,13 +405,18 @@ body { display: flex; flex-direction: column; align-items: center; height: 100dv
   </div>
 </div>
 
-<!-- ── CHAT VIEW ── -->
+<!-- CHAT VIEW -->
 <div class="view active" id="view-chat" style="flex-direction:column;">
-  <div class="chat-thread" id="chatThread"></div>
+  <div class="chat-thread" id="chatThread">
+    <div class="empty-state" id="emptyState">
+      <div class="empty-state-title">What are you building?</div>
+      <div class="empty-state-sub">Describe your app idea and Cleaninput will bring it to life.</div>
+    </div>
+  </div>
   <div class="composer-wrapper">
     <div class="composer">
       <input type="file" id="imageAttachmentInput" accept="image/*" style="display:none;" onchange="handleImageSelected(this)">
-      <div class="composer-input" contenteditable="true" data-placeholder="Describe the app you want to build..."></div>
+      <div class="composer-input" id="composerInput" contenteditable="true" data-placeholder="Describe the app you want to build..."></div>
       <div id="attachmentArea"></div>
       <div class="composer-bar">
         <div class="composer-left">
@@ -306,10 +434,9 @@ body { display: flex; flex-direction: column; align-items: center; height: 100dv
   </div>
 </div>
 
-<!-- ── PREVIEW VIEW ── -->
+<!-- PREVIEW VIEW -->
 <div class="view preview-view" id="view-preview">
   <div class="preview-canvas-wrap">
-    <!-- Light skeleton -->
     <div class="preview-skeleton" id="phoneSkeleton">
       <div class="skel skel-header"></div>
       <div class="skel skel-subheader"></div>
@@ -329,8 +456,6 @@ body { display: flex; flex-direction: column; align-items: center; height: 100dv
         <div class="skel-lines"><div class="skel skel-line w90"></div><div class="skel skel-line w60"></div></div>
       </div>
     </div>
-
-    <!-- Hello World app -->
     <div class="preview-app" id="phoneApp">
       <div class="preview-body">
         <div class="preview-hello">Hello, World!</div>
@@ -338,28 +463,16 @@ body { display: flex; flex-direction: column; align-items: center; height: 100dv
       </div>
     </div>
   </div>
-
-  <!-- Install bottom nav -->
   <div class="install-nav">
     <span class="install-nav-label">Install on your device</span>
     <div class="install-btn-row">
       <button class="install-btn apk" onclick="installAction('apk')">
-        <span class="install-btn-icon">
-          <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M17.523 15.3414C17.2472 15.3414 17.0236 15.1178 17.0236 14.842V14.8391C17.0236 14.5633 17.2472 14.3397 17.523 14.3397C17.7987 14.3397 18.0223 14.5633 18.0223 14.8391C18.0223 15.1178 17.7987 15.3414 17.523 15.3414ZM6.47700 15.3414C6.20128 15.3414 5.97769 15.1178 5.97769 14.842V14.8391C5.97769 14.5633 6.20128 14.3397 6.47700 14.3397C6.75272 14.3397 6.97631 14.5633 6.97631 14.8391C6.97631 15.1178 6.75272 15.3414 6.47700 15.3414ZM17.8047 9.0582L19.4721 6.1467C19.5633 5.9892 19.5064 5.7891 19.349 5.6979C19.1915 5.6067 18.9914 5.6637 18.9002 5.8211L17.2124 8.7667C15.9773 8.1842 14.5874 7.8613 13.1121 7.8613C11.6368 7.8613 10.2468 8.1842 9.00881 8.7667L7.32105 5.8211C7.22983 5.6637 7.02972 5.6067 6.87228 5.6979C6.71484 5.7891 6.65793 5.9892 6.74915 6.1467L8.41648 9.0582C5.73889 10.5399 3.90356 13.2401 3.69897 16.3759H22.501C22.2964 13.2401 20.4611 10.5399 17.8047 9.0582Z"/></svg>
-        </span>
-        <div class="install-btn-text">
-          <span class="install-btn-small">Android</span>
-          <span class="install-btn-big">Get APK</span>
-        </div>
+        <span class="install-btn-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.523 15.3414C17.2472 15.3414 17.0236 15.1178 17.0236 14.842V14.8391C17.0236 14.5633 17.2472 14.3397 17.523 14.3397C17.7987 14.3397 18.0223 14.5633 18.0223 14.8391C18.0223 15.1178 17.7987 15.3414 17.523 15.3414ZM6.47700 15.3414C6.20128 15.3414 5.97769 15.1178 5.97769 14.842V14.8391C5.97769 14.5633 6.20128 14.3397 6.47700 14.3397C6.75272 14.3397 6.97631 14.5633 6.97631 14.8391C6.97631 15.1178 6.75272 15.3414 6.47700 15.3414ZM17.8047 9.0582L19.4721 6.1467C19.5633 5.9892 19.5064 5.7891 19.349 5.6979C19.1915 5.6067 18.9914 5.6637 18.9002 5.8211L17.2124 8.7667C15.9773 8.1842 14.5874 7.8613 13.1121 7.8613C11.6368 7.8613 10.2468 8.1842 9.00881 8.7667L7.32105 5.8211C7.22983 5.6637 7.02972 5.6067 6.87228 5.6979C6.71484 5.7891 6.65793 5.9892 6.74915 6.1467L8.41648 9.0582C5.73889 10.5399 3.90356 13.2401 3.69897 16.3759H22.501C22.2964 13.2401 20.4611 10.5399 17.8047 9.0582Z"/></svg></span>
+        <div class="install-btn-text"><span class="install-btn-small">Android</span><span class="install-btn-big">Get APK</span></div>
       </button>
       <button class="install-btn ipa" onclick="installAction('ipa')">
-        <span class="install-btn-icon">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
-        </span>
-        <div class="install-btn-text">
-          <span class="install-btn-small">iOS</span>
-          <span class="install-btn-big">Get IPA</span>
-        </div>
+        <span class="install-btn-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg></span>
+        <div class="install-btn-text"><span class="install-btn-small">iOS</span><span class="install-btn-big">Get IPA</span></div>
       </button>
     </div>
   </div>
@@ -367,11 +480,14 @@ body { display: flex; flex-direction: column; align-items: center; height: 100dv
 
 <script>
 var base64ImageData = null;
-var activeCtxTarget = null;
+var activeCtxProjectId = null;
+var pendingDeleteId = null;
 var SHARE_URL = 'https://cleaninput.officialmykeee.workers.dev/';
 var previewLoaded = false;
+var activeProjectId = null;
+var projects = {}; // id -> { name, instructions }
 
-// Toast
+// ── Toast ──
 function showToast(msg) {
   var t = document.getElementById('copyToast');
   t.textContent = msg;
@@ -379,10 +495,10 @@ function showToast(msg) {
   setTimeout(function(){ t.classList.remove('show'); }, 2200);
 }
 
-// Context menu
-function openCtxMenu(e, targetId) {
+// ── Context menu ──
+function openCtxMenu(e, projectId) {
   e.stopPropagation();
-  activeCtxTarget = targetId;
+  activeCtxProjectId = projectId;
   var menu = document.getElementById('ctxMenu');
   var rect = e.currentTarget.getBoundingClientRect();
   var menuW = 170;
@@ -396,9 +512,10 @@ function openCtxMenu(e, targetId) {
 }
 function closeCtxMenu() {
   document.getElementById('ctxMenu').classList.remove('open');
-  activeCtxTarget = null;
 }
 function ctxAction(action) {
+  var pid = activeCtxProjectId;
+  closeCtxMenu();
   if (action === 'share') {
     navigator.clipboard.writeText(SHARE_URL).then(function(){
       showToast('Link copied!');
@@ -409,44 +526,193 @@ function ctxAction(action) {
       document.body.removeChild(ta); showToast('Link copied!');
     });
   }
-  if (action === 'delete' && activeCtxTarget) {
-    var el = document.getElementById(activeCtxTarget);
-    if (el) {
-      el.style.transition = 'opacity .2s, max-height .25s, padding .25s, margin .25s';
-      el.style.opacity = '0'; el.style.maxHeight = '0';
-      el.style.padding = '0'; el.style.margin = '0';
-      setTimeout(function(){ el.remove(); }, 260);
-    }
+  if (action === 'delete' && pid) {
+    pendingDeleteId = pid;
+    var name = projects[pid] ? projects[pid].name : 'this project';
+    document.getElementById('deleteConfirmSub').textContent = 'Delete "' + name + '"? This cannot be undone.';
+    document.getElementById('deleteConfirmOverlay').classList.add('open');
   }
-  closeCtxMenu();
 }
 document.addEventListener('click', function(e){
   if (!document.getElementById('ctxMenu').contains(e.target)) closeCtxMenu();
 });
 
-// Install actions
+// ── Delete confirm ──
+function confirmDelete() {
+  if (!pendingDeleteId) return;
+  var el = document.getElementById('proj-' + pendingDeleteId);
+  if (el) {
+    el.style.transition = 'opacity .2s, max-height .25s, padding .25s, margin .25s';
+    el.style.opacity = '0'; el.style.maxHeight = '0';
+    el.style.padding = '0'; el.style.margin = '0';
+    setTimeout(function(){ el.remove(); }, 260);
+  }
+  if (activeProjectId === pendingDeleteId) {
+    activeProjectId = null;
+    document.getElementById('activeProjectBanner').classList.remove('show');
+  }
+  delete projects[pendingDeleteId];
+  pendingDeleteId = null;
+  closeDeleteConfirm();
+  showToast('Project deleted');
+}
+function closeDeleteConfirm() {
+  document.getElementById('deleteConfirmOverlay').classList.remove('open');
+  pendingDeleteId = null;
+}
+document.getElementById('deleteConfirmOverlay').addEventListener('click', function(e){
+  if (e.target === this) closeDeleteConfirm();
+});
+
+// ── Install actions ──
 function installAction(type) {
   showToast(type === 'apk' ? 'APK build coming soon!' : 'IPA build coming soon!');
 }
 
-// Tab switching with preview load
+// ── Project Modal ──
+function openProjectModal() {
+  closeDrawer();
+  var overlay = document.getElementById('projectModalOverlay');
+  overlay.classList.add('open');
+  setTimeout(function(){
+    document.getElementById('projectNameInput').focus();
+  }, 260);
+}
+function closeProjectModal() {
+  document.getElementById('projectModalOverlay').classList.remove('open');
+  document.getElementById('projectNameInput').value = '';
+  document.getElementById('projectInstructionsInput').value = '';
+  updateCreateBtn();
+}
+function updateCreateBtn() {
+  var name = document.getElementById('projectNameInput').value.trim();
+  document.getElementById('createProjectBtn').disabled = name.length === 0;
+}
+document.getElementById('projectNameInput').addEventListener('keydown', function(e){
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    var name = this.value.trim();
+    if (name) createProject();
+  }
+});
+
+function createProject() {
+  var name = document.getElementById('projectNameInput').value.trim();
+  var instructions = document.getElementById('projectInstructionsInput').value.trim();
+  if (!name) return;
+
+  var id = 'proj_' + Date.now();
+  projects[id] = { name: name, instructions: instructions };
+
+  // Add to drawer
+  addProjectToDrawer(id, name);
+
+  closeProjectModal();
+
+  // Set as active project and focus composer
+  setActiveProject(id);
+  closeDrawer();
+
+  // Switch to chat and focus input
+  var chatTab = document.querySelector('.tab-btn');
+  switchTab(chatTab, 'chat');
+
+  setTimeout(function(){
+    var ci = document.getElementById('composerInput');
+    ci.focus();
+    // Update placeholder to reflect project context
+    ci.setAttribute('data-placeholder', 'Start building "' + name + '"...');
+  }, 100);
+
+  showToast('Project "' + name + '" created');
+}
+
+function addProjectToDrawer(id, name) {
+  var list = document.getElementById('projectsList');
+  // Remove the "New project" placeholder if it's still there
+  var placeholder = list.querySelector('[data-placeholder-item]');
+  if (placeholder) placeholder.remove();
+
+  var item = document.createElement('div');
+  item.className = 'drawer-task-item';
+  item.id = 'proj-' + id;
+  item.setAttribute('data-project-id', id);
+  item.innerHTML =
+    '<span class="drawer-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>' +
+    '<span class="drawer-task-label">' + escapeHtml(name) + '</span>' +
+    '<button class="drawer-task-more" onclick="openCtxMenu(event,\'' + id + '\')" title="Options"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg></button>';
+
+  item.addEventListener('click', function(e){
+    if (e.target.closest('.drawer-task-more')) return;
+    setActiveProject(id);
+    closeDrawer();
+    var chatTab = document.querySelector('.tab-btn');
+    switchTab(chatTab, 'chat');
+    setTimeout(function(){
+      document.getElementById('composerInput').focus();
+    }, 100);
+  });
+
+  list.appendChild(item);
+}
+
+function setActiveProject(id) {
+  activeProjectId = id;
+  // Update drawer highlight
+  document.querySelectorAll('.drawer-task-item').forEach(function(el){
+    el.classList.remove('active-project');
+  });
+  var el = document.getElementById('proj-' + id);
+  if (el) el.classList.add('active-project');
+
+  // Show banner
+  var banner = document.getElementById('activeProjectBanner');
+  var proj = projects[id];
+  if (proj) {
+    document.getElementById('activeProjectName').textContent = proj.name;
+    banner.classList.add('show');
+  }
+}
+
+function clearActiveProject() {
+  activeProjectId = null;
+  document.getElementById('activeProjectBanner').classList.remove('show');
+  document.querySelectorAll('.drawer-task-item').forEach(function(el){
+    el.classList.remove('active-project');
+  });
+  var ci = document.getElementById('composerInput');
+  ci.setAttribute('data-placeholder', 'Describe the app you want to build...');
+}
+
+// ── New task ──
+function startNewTask() {
+  closeDrawer();
+  clearActiveProject();
+  // Clear chat
+  var thread = document.getElementById('chatThread');
+  thread.innerHTML = '<div class="empty-state" id="emptyState"><div class="empty-state-title">What are you building?</div><div class="empty-state-sub">Describe your app idea and Cleaninput will bring it to life.</div></div>';
+  var ci = document.getElementById('composerInput');
+  ci.innerHTML = '';
+  ci.setAttribute('data-placeholder', 'Describe the app you want to build...');
+  updateSendBtn();
+  // Switch to chat
+  var chatTab = document.querySelector('.tab-btn');
+  switchTab(chatTab, 'chat');
+  setTimeout(function(){ ci.focus(); }, 100);
+}
+
+// ── Tab switching ──
 function switchTab(btn, tab) {
   document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
   btn.classList.add('active');
   document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('active'); });
   document.getElementById('view-' + tab).classList.add('active');
-
-  // Hide toprow (hamburger + coin) on preview, show on chat
-  var toprow = document.querySelector('.tab-toprow');
-  toprow.classList.toggle('hidden', tab === 'preview');
-
+  document.getElementById('tabToprow').classList.toggle('hidden', tab === 'preview');
   if (tab === 'preview' && !previewLoaded) {
     previewLoaded = true;
-    var skel = document.getElementById('phoneSkeleton');
-    var app  = document.getElementById('phoneApp');
     setTimeout(function(){
-      skel.classList.add('hidden');
-      setTimeout(function(){ app.classList.add('visible'); }, 300);
+      document.getElementById('phoneSkeleton').classList.add('hidden');
+      setTimeout(function(){ document.getElementById('phoneApp').classList.add('visible'); }, 300);
     }, 1800);
   }
 }
@@ -454,7 +720,7 @@ function switchTab(btn, tab) {
 function openDrawer()  { document.getElementById('drawer').classList.add('open'); document.getElementById('drawerOverlay').classList.add('open'); }
 function closeDrawer() { document.getElementById('drawer').classList.remove('open'); document.getElementById('drawerOverlay').classList.remove('open'); }
 
-// Image attachment
+// ── Image attachment ──
 function handleImageSelected(inputElement) {
   var file = inputElement.files[0]; if (!file) return;
   var reader = new FileReader();
@@ -473,7 +739,7 @@ function clearAttachedImage(){
   updateSendBtn();
 }
 
-var input = document.querySelector('.composer-input');
+var input = document.getElementById('composerInput');
 var micSendBtn = document.getElementById('micSendBtn');
 
 function updateSendBtn() {
@@ -490,9 +756,14 @@ input.addEventListener('keydown', function(e){
   if (e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); submitUserPrompt(); }
 });
 
-async function submitUserPrompt() {
+function submitUserPrompt() {
   var promptText = input.innerText.trim();
   if (!promptText && !base64ImageData) return;
+
+  // Hide empty state
+  var es = document.getElementById('emptyState');
+  if (es) es.remove();
+
   var thread = document.getElementById('chatThread');
   var userRow = document.createElement('div');
   userRow.className = 'bubble-row user';
@@ -500,13 +771,15 @@ async function submitUserPrompt() {
   if (base64ImageData) msg = '<div>📸 [Attached Image]</div>' + msg;
   userRow.innerHTML = '<div class="bubble user">' + msg + '</div>';
   thread.appendChild(userRow);
+
   var aiRow = document.createElement('div');
   aiRow.className = 'bubble-row ai';
   aiRow.id = 'activeThinkingBlock';
   aiRow.innerHTML = '<div class="ai-avatar"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg></div><div class="thinking-block"><div class="thinking-label">Cleaninput is building your mobile app <span class="thinking-dots"><span></span><span></span><span></span></span></div><div class="thought-lines"><div class="thought-line"></div><div class="thought-line"></div></div></div>';
   thread.appendChild(aiRow);
   thread.scrollTop = thread.scrollHeight;
-  input.innerHTML = ''; clearAttachedImage();
+  input.innerHTML = ''; clearAttachedImage(); updateSendBtn();
+
   setTimeout(function(){
     var block = document.getElementById('activeThinkingBlock');
     if (block) block.removeAttribute('id');
@@ -518,10 +791,10 @@ async function submitUserPrompt() {
   }, 2000);
 }
 
-// Typewriter
+// ── Typewriter ──
 (function(){
   var phrases = ["Describe the app you want to build...","Build a fitness tracker app...","Create a recipe sharing app...","Make a habit tracking app...","Design a note-taking app..."];
-  var el = document.querySelector(".composer-input");
+  var el = document.getElementById('composerInput');
   var phraseIdx=0, charIdx=0, deleting=false, pauseTicks=0, running=false;
   var PT=28, PD=6;
   function tick(){
