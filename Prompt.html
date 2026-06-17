@@ -80,6 +80,30 @@ body { display: flex; flex-direction: column; justify-content: space-between; al
 .ctx-icon { width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .ctx-icon svg { width: 16px; height: 16px; }
 
+/* Copy toast */
+.copy-toast {
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%) translateY(10px);
+    background: #1a1a1a;
+    border: 1px solid rgba(255,255,255,.12);
+    color: #e8e8e8;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 9px 18px;
+    border-radius: 999px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s, transform .2s;
+    z-index: 600;
+    white-space: nowrap;
+}
+.copy-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
 /* Footer */
 .drawer-footer { padding: 12px 16px 22px; border-top: 1px solid rgba(255,255,255,.05); display: flex; align-items: center; gap: 10px; }
 .drawer-avatar { width: 34px; height: 34px; border-radius: 50%; background: #6d28d9; display: inline-flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; }
@@ -160,6 +184,9 @@ body { display: flex; flex-direction: column; justify-content: space-between; al
 </head>
 <body>
 
+<!-- Copy toast -->
+<div class="copy-toast" id="copyToast">Link copied!</div>
+
 <!-- Context menu -->
 <div class="ctx-menu" id="ctxMenu">
     <button class="ctx-menu-item" onclick="ctxAction('share')">
@@ -187,18 +214,6 @@ body { display: flex; flex-direction: column; justify-content: space-between; al
             <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></span>
             New task
         </button>
-        <button class="nav-item">
-            <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="9" height="9" rx="2"/><rect x="13" y="2" width="9" height="9" rx="2"/><rect x="2" y="13" width="9" height="9" rx="2"/><rect x="13" y="13" width="9" height="9" rx="2"/></svg></span>
-            Plugins
-        </button>
-        <button class="nav-item">
-            <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
-            Scheduled
-        </button>
-        <button class="nav-item">
-            <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span>
-            Library
-        </button>
     </div>
 
     <div class="drawer-body">
@@ -219,13 +234,7 @@ body { display: flex; flex-direction: column; justify-content: space-between; al
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
             </button>
         </div>
-        <div class="drawer-task-item" id="taskItem1">
-            <span class="drawer-task-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span>
-            <span class="drawer-task-label">Convert HTML Template to Rea…</span>
-            <button class="drawer-task-more" onclick="openCtxMenu(event, 'taskItem1')">
-                <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>
-            </button>
-        </div>
+        <!-- No tasks shown on static page -->
     </div>
 
     <div class="drawer-footer">
@@ -275,6 +284,15 @@ body { display: flex; flex-direction: column; justify-content: space-between; al
 <script>
 var base64ImageData = null;
 var activeCtxTarget = null;
+var SHARE_URL = 'https://cleaninput.officialmykeee.workers.dev/';
+
+// Toast
+function showToast(msg) {
+    var toast = document.getElementById('copyToast');
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(function() { toast.classList.remove('show'); }, 2200);
+}
 
 // Context menu
 function openCtxMenu(e, targetId) {
@@ -284,12 +302,10 @@ function openCtxMenu(e, targetId) {
     var btn = e.currentTarget;
     var rect = btn.getBoundingClientRect();
 
-    // Position near the button, offset left so it doesn't clip
     var menuW = 170;
     var left = rect.left - menuW + rect.width;
     var top = rect.bottom + 6;
 
-    // Keep within viewport
     if (left < 8) left = 8;
     if (top + 120 > window.innerHeight) top = rect.top - 120;
 
@@ -304,12 +320,32 @@ function closeCtxMenu() {
 }
 
 function ctxAction(action) {
+    if (action === 'share') {
+        navigator.clipboard.writeText(SHARE_URL).then(function() {
+            showToast('Link copied!');
+        }).catch(function() {
+            // Fallback for older browsers
+            var ta = document.createElement('textarea');
+            ta.value = SHARE_URL;
+            ta.style.position = 'fixed';
+            ta.style.opacity = '0';
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            showToast('Link copied!');
+        });
+    }
+
     if (action === 'delete' && activeCtxTarget) {
         var el = document.getElementById(activeCtxTarget);
         if (el) {
-            el.style.transition = 'opacity .2s';
+            el.style.transition = 'opacity .2s, max-height .25s, padding .25s, margin .25s';
             el.style.opacity = '0';
-            setTimeout(function() { el.remove(); }, 200);
+            el.style.maxHeight = '0';
+            el.style.padding = '0';
+            el.style.margin = '0';
+            setTimeout(function() { el.remove(); }, 260);
         }
     }
     closeCtxMenu();
