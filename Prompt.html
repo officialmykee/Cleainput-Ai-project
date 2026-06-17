@@ -379,8 +379,8 @@ body { display: flex; flex-direction: column; align-items: center; height: 100dv
     </div>
   </div>
   <div class="drawer-footer">
-    <div class="drawer-avatar">M</div>
-    <span class="drawer-username">My Cleaninput</span>
+    <div class="drawer-avatar" id="drawerAvatar">M</div>
+    <span class="drawer-username" id="drawerUsername">My Cleaninput</span>
   </div>
 </div>
 
@@ -458,7 +458,7 @@ body { display: flex; flex-direction: column; align-items: center; height: 100dv
     </div>
     <div class="preview-app" id="phoneApp">
       <div class="preview-body">
-        <div class="preview-hello">Hello, World!</div>
+        <div class="preview-hello" id="previewHelloGreeting">Hello, World!</div>
         <div class="preview-sub">Your app will appear here once built.</div>
       </div>
     </div>
@@ -811,6 +811,35 @@ function submitUserPrompt() {
 })();
 
 function escapeHtml(str){ return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ── Profile Loader Logic ──
+document.addEventListener("DOMContentLoaded", function() {
+  var storedName = localStorage.getItem("username") || sessionStorage.getItem("username");
+  var storedAvatarRaw = localStorage.getItem("avatar") || sessionStorage.getItem("avatar");
+
+  if (storedName) {
+    var userEl = document.getElementById("drawerUsername");
+    if (userEl) userEl.textContent = storedName;
+    
+    var greetEl = document.getElementById("previewHelloGreeting");
+    if (greetEl) greetEl.textContent = "Hello, " + storedName + "!";
+    
+    var avEl = document.getElementById("drawerAvatar");
+    if (avEl) {
+      avEl.textContent = storedName.charAt(0).toUpperCase();
+      if (storedAvatarRaw) {
+        try {
+          var avatarData = JSON.parse(storedAvatarRaw);
+          if (avatarData && avatarData.color) {
+            avEl.style.backgroundColor = avatarData.color;
+          }
+        } catch(e) {
+          console.error("Error formatting avatar data packet:", e);
+        }
+      }
+    }
+  }
+});
 </script>
 </body>
 </html>
