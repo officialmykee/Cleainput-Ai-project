@@ -813,28 +813,33 @@ function submitUserPrompt() {
 function escapeHtml(str){ return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 // ── Profile Loader Logic ──
+// Matches the real app's session schema: a single 'cleainput_session' key
+// holding JSON like { username, email, avatar: { letter, color } }.
 document.addEventListener("DOMContentLoaded", function() {
-  var storedName = localStorage.getItem("username") || sessionStorage.getItem("username");
-  var storedAvatarRaw = localStorage.getItem("avatar") || sessionStorage.getItem("avatar");
+  var SESSION_KEY = 'cleainput_session';
+  var raw = localStorage.getItem(SESSION_KEY) || sessionStorage.getItem(SESSION_KEY);
+  var session = null;
+  try { session = raw ? JSON.parse(raw) : null; } catch(e) { session = null; }
 
-  if (storedName) {
-    var userEl = document.getElementById("drawerUsername");
-    if (userEl) userEl.textContent = storedName;
-    
-    var greetEl = document.getElementById("previewHelloGreeting");
-    if (greetEl) greetEl.textContent = "Hello, " + storedName + "!";
-    
-    var avEl = document.getElementById("drawerAvatar");
-    if (avEl) {
-      avEl.textContent = storedName.charAt(0).toUpperCase();
-      if (storedAvatarRaw) {
-        try {
-          var avatarData = JSON.parse(storedAvatarRaw);
-          if (avatarData && avatarData.color) {
-            avEl.style.backgroundColor = avatarData.color;
-          }
-        } catch(e) {
-          console.error("Error formatting avatar data packet:", e);
+  if (session) {
+    var displayName = session.username || (session.email ? session.email.split('@')[0] : null);
+
+    if (displayName) {
+      var userEl = document.getElementById("drawerUsername");
+      if (userEl) userEl.textContent = displayName;
+
+      var greetEl = document.getElementById("previewHelloGreeting");
+      if (greetEl) greetEl.textContent = "Hello, " + displayName + "!";
+
+      var avEl = document.getElementById("drawerAvatar");
+      if (avEl) {
+        if (session.avatar && session.avatar.letter) {
+          avEl.textContent = session.avatar.letter;
+        } else {
+          avEl.textContent = displayName.charAt(0).toUpperCase();
+        }
+        if (session.avatar && session.avatar.color) {
+          avEl.style.background = session.avatar.color;
         }
       }
     }
@@ -843,5 +848,4 @@ document.addEventListener("DOMContentLoaded", function() {
 </script>
 </body>
 </html>
-
 
