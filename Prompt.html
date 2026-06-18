@@ -261,6 +261,33 @@ body { display: flex; flex-direction: column; align-items: center; height: 100dv
 .install-btn.apk .install-btn-icon { color: #a3e635; }
 .install-btn.ipa .install-btn-icon { color: #60a5fa; }
 
+/* ── Preview fullscreen toggle ── */
+.preview-fullscreen-toggle {
+  position: absolute; top: 14px; right: 14px; z-index: 50;
+  width: 38px; height: 38px; border-radius: 50%;
+  border: 1px solid rgba(0,0,0,.08); background: rgba(255,255,255,.92);
+  color: #333; display: flex; align-items: center; justify-content: center;
+  cursor: pointer; appearance: none; backdrop-filter: blur(6px);
+  box-shadow: 0 2px 10px rgba(0,0,0,.12);
+  transition: background .15s, transform .1s;
+}
+.preview-fullscreen-toggle:hover { background: #fff; }
+.preview-fullscreen-toggle:active { transform: scale(0.94); }
+.preview-fullscreen-toggle svg { width: 17px; height: 17px; position: absolute; transition: opacity .15s, transform .15s; }
+.preview-fullscreen-toggle .icon-collapse { opacity: 0; transform: scale(0.7); }
+.preview-fullscreen-toggle .icon-expand { opacity: 1; transform: scale(1); }
+body.preview-chrome-hidden .preview-fullscreen-toggle .icon-expand { opacity: 0; transform: scale(0.7); }
+body.preview-chrome-hidden .preview-fullscreen-toggle .icon-collapse { opacity: 1; transform: scale(1); }
+
+/* ── Chrome collapse (header + install nav) ── */
+#tabHeader, .install-nav { transition: max-height .3s ease, opacity .25s ease, padding .3s ease, margin .3s ease; overflow: hidden; max-height: 200px; }
+body.preview-chrome-hidden #tabHeader {
+  max-height: 0; opacity: 0; padding-top: 0; padding-bottom: 0; margin: 0;
+}
+body.preview-chrome-hidden .install-nav {
+  max-height: 0; opacity: 0; padding-top: 0; padding-bottom: 0; margin: 0; border-top-color: transparent;
+}
+
 /* ── Delete confirm ── */
 .delete-confirm-overlay {
   position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 800;
@@ -456,6 +483,10 @@ body { display: flex; flex-direction: column; align-items: center; height: 100dv
         <div class="preview-sub">Your app will appear here once built.</div>
       </div>
     </div>
+    <button class="preview-fullscreen-toggle" id="previewFullscreenToggle" title="Toggle fullscreen" onclick="togglePreviewFullscreen()">
+      <svg class="icon-expand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+      <svg class="icon-collapse" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 3 9 9 3 9"/><polyline points="15 21 15 15 21 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+    </button>
   </div>
   <div class="install-nav">
     <span class="install-nav-label">Install on your device</span>
@@ -561,6 +592,11 @@ document.getElementById('deleteConfirmOverlay').addEventListener('click', functi
 // ── Install actions ──
 function installAction(type) {
   showToast(type === 'apk' ? 'APK build coming soon!' : 'IPA build coming soon!');
+}
+
+// ── Preview fullscreen toggle ──
+function togglePreviewFullscreen() {
+  document.body.classList.toggle('preview-chrome-hidden');
 }
 
 // ── Project Modal ──
@@ -702,6 +738,7 @@ function switchTab(btn, tab) {
   document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('active'); });
   document.getElementById('view-' + tab).classList.add('active');
   document.getElementById('tabToprow').classList.toggle('hidden', tab === 'preview');
+  if (tab !== 'preview') document.body.classList.remove('preview-chrome-hidden');
   if (tab === 'preview' && !previewLoaded) {
     previewLoaded = true;
     setTimeout(function(){
