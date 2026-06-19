@@ -319,7 +319,6 @@ body.preview-chrome-hidden .install-nav {
 
 <div class="copy-toast" id="copyToast">Link copied!</div>
 
-<!-- Delete Confirm Sheet -->
 <div class="delete-confirm-overlay" id="deleteConfirmOverlay">
   <div class="delete-confirm-sheet">
     <div class="delete-confirm-title">Delete project?</div>
@@ -329,7 +328,6 @@ body.preview-chrome-hidden .install-nav {
   </div>
 </div>
 
-<!-- Create Project Modal — FULL SCREEN -->
 <div class="modal-overlay" id="projectModalOverlay">
   <div class="modal-card">
     <div class="modal-topbar">
@@ -360,7 +358,6 @@ body.preview-chrome-hidden .install-nav {
   </div>
 </div>
 
-<!-- Context menu -->
 <div class="ctx-menu" id="ctxMenu">
   <button class="ctx-menu-item" onclick="ctxAction('share')">
     <span class="ctx-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></span>
@@ -375,7 +372,6 @@ body.preview-chrome-hidden .install-nav {
 
 <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
 
-<!-- Drawer -->
 <div class="drawer" id="drawer">
   <div class="drawer-header"></div>
   <div class="drawer-nav">
@@ -406,7 +402,6 @@ body.preview-chrome-hidden .install-nav {
   </div>
 </div>
 
-<!-- Tab header -->
 <div class="tab-header" id="tabHeader">
   <div class="tab-toprow" id="tabToprow">
     <button class="hamburger-btn" onclick="openDrawer()"><span></span><span></span><span></span></button>
@@ -415,7 +410,6 @@ body.preview-chrome-hidden .install-nav {
       <span class="coin-count">10</span>
     </div>
   </div>
-  <!-- Active project banner -->
   <div class="active-project-banner" id="activeProjectBanner">
     <span class="apb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
     <span class="apb-name" id="activeProjectName"></span>
@@ -427,7 +421,6 @@ body.preview-chrome-hidden .install-nav {
   </div>
 </div>
 
-<!-- CHAT VIEW -->
 <div class="view active" id="view-chat" style="flex-direction:column;">
   <div class="chat-thread" id="chatThread">
     <div class="empty-state" id="emptyState">
@@ -455,7 +448,6 @@ body.preview-chrome-hidden .install-nav {
   </div>
 </div>
 
-<!-- PREVIEW VIEW -->
 <div class="view preview-view" id="view-preview">
   <div class="preview-canvas-wrap">
     <div class="preview-skeleton" id="phoneSkeleton">
@@ -504,6 +496,44 @@ body.preview-chrome-hidden .install-nav {
 </div>
 
 <script>
+// ── UTILITY: DATA COMPRESSION LAYER ──
+const DataPacker = {
+  compress: function(str) {
+    if (!str) return "";
+    var i, dictionary = {}, c, wc, w = "", result = [], dictSize = 256;
+    for (i = 0; i < 256; i++) dictionary[String.fromCharCode(i)] = i;
+    for (i = 0; i < str.length; i++) {
+      c = str.charAt(i);
+      wc = w + c;
+      if (dictionary.hasOwnProperty(wc)) { w = wc; } 
+      else {
+        result.push(dictionary[w]);
+        dictionary[wc] = dictSize++;
+        w = String(c);
+      }
+    }
+    if (w !== "") result.push(dictionary[w]);
+    return result.join(',');
+  },
+  decompress: function(str) {
+    if (!str) return "";
+    var i, dictionary = [], c, w, k, result = [], dictSize = 256;
+    for (i = 0; i < 256; i++) dictionary[i] = String.fromCharCode(i);
+    var codes = str.split(',').map(Number);
+    w = String.fromCharCode(codes[0]);
+    result.push(w);
+    for (i = 1; i < codes.length; i++) {
+      k = codes[i];
+      if (dictionary[k]) { entry = dictionary[k]; } 
+      else { if (k === dictSize) { entry = w + w.charAt(0); } else { return null; } }
+      result.push(entry);
+      dictionary[dictSize++] = w + entry.charAt(0);
+      w = entry;
+    }
+    return result.join('');
+  }
+};
+
 var base64ImageData = null;
 var activeCtxProjectId = null;
 var pendingDeleteId = null;
@@ -511,6 +541,9 @@ var SHARE_URL = 'https://cleaninput.officialmykeee.workers.dev/';
 var previewLoaded = false;
 var activeProjectId = null;
 var projects = {}; // id -> { name, instructions }
+
+// CHANGE THIS TO YOUR HUGGING FACE BACKEND API HUB URL
+const BACKEND_URL = "https://your-username-your-space.hf.space/api/predict"; 
 
 // ── Toast ──
 function showToast(msg) {
@@ -626,7 +659,7 @@ document.getElementById('projectNameInput').addEventListener('keydown', function
   }
 });
 
-function createProject() {
+async function createProject() {
   var name = document.getElementById('projectNameInput').value.trim();
   var instructions = document.getElementById('projectInstructionsInput').value.trim();
   if (!name) return;
@@ -634,23 +667,31 @@ function createProject() {
   var id = 'proj_' + Date.now();
   projects[id] = { name: name, instructions: instructions };
 
-  // Add to drawer
   addProjectToDrawer(id, name);
-
   closeProjectModal();
-
-  // Set as active project and focus composer
   setActiveProject(id);
   closeDrawer();
 
-  // Switch to chat and focus input
+  // BACKGROUND SYNC: Push new project structure to Cloudflare D1
+  const sessionData = JSON.parse(localStorage.getItem('cleainput_session') || sessionStorage.getItem('cleainput_session') || '{}');
+  const userId = sessionData.username || 'guest';
+  
+  try {
+    fetch('/api/projects/create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, userId, name, instructions })
+    });
+  } catch(e) { 
+    console.error("Sync deferred:", e); 
+  }
+
   var chatTab = document.querySelector('.tab-btn');
   switchTab(chatTab, 'chat');
 
   setTimeout(function(){
     var ci = document.getElementById('composerInput');
     ci.focus();
-    // Update placeholder to reflect project context
     ci.setAttribute('data-placeholder', 'Start building "' + name + '"...');
   }, 100);
 
@@ -659,7 +700,6 @@ function createProject() {
 
 function addProjectToDrawer(id, name) {
   var list = document.getElementById('projectsList');
-  // Remove the "New project" placeholder if it's still there
   var placeholder = list.querySelector('[data-placeholder-item]');
   if (placeholder) placeholder.remove();
 
@@ -688,14 +728,12 @@ function addProjectToDrawer(id, name) {
 
 function setActiveProject(id) {
   activeProjectId = id;
-  // Update drawer highlight
   document.querySelectorAll('.drawer-task-item').forEach(function(el){
     el.classList.remove('active-project');
   });
   var el = document.getElementById('proj-' + id);
   if (el) el.classList.add('active-project');
 
-  // Show banner
   var banner = document.getElementById('activeProjectBanner');
   var proj = projects[id];
   if (proj) {
@@ -718,14 +756,12 @@ function clearActiveProject() {
 function startNewTask() {
   closeDrawer();
   clearActiveProject();
-  // Clear chat
   var thread = document.getElementById('chatThread');
   thread.innerHTML = '<div class="empty-state" id="emptyState"><div class="empty-state-title">What are you building?</div><div class="empty-state-sub">Describe your app idea and Cleaninput will bring it to life.</div></div>';
   var ci = document.getElementById('composerInput');
   ci.innerHTML = '';
   ci.setAttribute('data-placeholder', 'Describe the app you want to build...');
   updateSendBtn();
-  // Switch to chat
   var chatTab = document.querySelector('.tab-btn');
   switchTab(chatTab, 'chat');
   setTimeout(function(){ ci.focus(); }, 100);
@@ -787,11 +823,12 @@ input.addEventListener('keydown', function(e){
   if (e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); submitUserPrompt(); }
 });
 
-function submitUserPrompt() {
+async function submitUserPrompt() {
   var promptText = input.innerText.trim();
   if (!promptText && !base64ImageData) return;
 
-  // Hide empty state
+  var currentProjectContext = activeProjectId ? projects[activeProjectId] : null;
+
   var es = document.getElementById('emptyState');
   if (es) es.remove();
 
@@ -809,17 +846,73 @@ function submitUserPrompt() {
   aiRow.innerHTML = '<div class="ai-avatar"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg></div><div class="thinking-block"><div class="thinking-label">Cleaninput is building your mobile app <span class="thinking-dots"><span></span><span></span><span></span></span></div><div class="thought-lines"><div class="thought-line"></div><div class="thought-line"></div></div></div>';
   thread.appendChild(aiRow);
   thread.scrollTop = thread.scrollHeight;
-  input.innerHTML = ''; clearAttachedImage(); updateSendBtn();
 
-  setTimeout(function(){
+  const sessionData = JSON.parse(localStorage.getItem('cleainput_session') || sessionStorage.getItem('cleainput_session') || '{}');
+  const userId = sessionData.username || 'guest';
+  
+  const compressedUserPrompt = DataPacker.compress(promptText);
+
+  input.innerHTML = ''; 
+  var capturedImage = base64ImageData;
+  clearAttachedImage(); 
+  updateSendBtn();
+
+  try {
+    const response = await fetch(BACKEND_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        data: [
+          promptText,
+          capturedImage || "",
+          currentProjectContext ? currentProjectContext.instructions : ""
+        ]
+      })
+    });
+
+    if (!response.ok) throw new Error("Server processed context incorrectly");
+    const jsonResult = await response.json();
+    const generatedAppOutput = jsonResult.data[0];
+
+    const compressedAIResponse = DataPacker.compress(generatedAppOutput);
+
     var block = document.getElementById('activeThinkingBlock');
-    if (block) block.removeAttribute('id');
+    if (block) block.remove();
+
     var successRow = document.createElement('div');
     successRow.className = 'bubble-row ai';
-    successRow.innerHTML = '<div class="ai-avatar" style="font-size:14px;">✨</div><div class="bubble" style="background:#09090b;border:1px solid #22c55e;color:#22c55e;max-width:80%;"><strong>Build complete!</strong> Connect your Cerebrium endpoint to generate real app bundles.</div>';
+    successRow.innerHTML = '<div class="ai-avatar" style="font-size:14px;">✨</div><div class="bubble" style="background:#09090b;border:1px solid #22c55e;color:#fff;max-width:80%;"><strong>Build complete!</strong> Architectural structures parsed successfully inside preview tabs.</div>';
     thread.appendChild(successRow);
-    thread.scrollTop = thread.scrollHeight;
-  }, 2000);
+
+    document.getElementById('previewHelloGreeting').textContent = "App Context Rendered";
+    document.querySelector('.preview-sub').innerHTML = `<pre style="font-size:11px; color:#666; text-align:left; max-width:100%; overflow-x:auto;">${escapeHtml(generatedAppOutput.substring(0, 300))}...</pre>`;
+
+    fetch('/api/chat/persist', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        userId: userId,
+        projectId: activeProjectId,
+        userMessagePacked: compressedUserPrompt,
+        aiMessagePacked: compressedAIResponse
+      })
+    }).then(res => res.json()).then(data => {
+       if(data && data.updatedCoins !== undefined) {
+          document.querySelector('.coin-count').textContent = data.updatedCoins;
+       }
+    });
+
+  } catch (error) {
+    console.error("Connection failed:", error);
+    var block = document.getElementById('activeThinkingBlock');
+    if (block) block.remove();
+
+    var errorRow = document.createElement('div');
+    errorRow.className = 'bubble-row ai';
+    errorRow.innerHTML = '<div class="ai-avatar" style="font-size:14px;">⚠️</div><div class="bubble" style="background:#110c0c;border:1px solid #ef4444;color:#ef4444;max-width:80%;"><strong>Runtime Error:</strong> Could not reach backend engine configuration space. Check your API address mapping.</div>';
+    thread.appendChild(errorRow);
+  }
+  thread.scrollTop = thread.scrollHeight;
 }
 
 // ── Typewriter ──
@@ -844,8 +937,6 @@ function submitUserPrompt() {
 function escapeHtml(str){ return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 // ── Profile Loader Logic ──
-// Matches the real app's session schema: a single 'cleainput_session' key
-// holding JSON like { username, email, avatar: { letter, color } }.
 document.addEventListener("DOMContentLoaded", function() {
   var SESSION_KEY = 'cleainput_session';
   var raw = localStorage.getItem(SESSION_KEY) || sessionStorage.getItem(SESSION_KEY);
@@ -879,5 +970,4 @@ document.addEventListener("DOMContentLoaded", function() {
 </script>
 </body>
 </html>
-
 
