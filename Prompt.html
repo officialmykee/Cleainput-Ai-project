@@ -568,7 +568,7 @@ var activeProjectId = null;
 var projects = {}; // id -> { name, instructions, lastCode }
 
 // CORRECTED HUGGING FACE BACKEND API HUB ROUTE MAPPING
-const BACKEND_URL = "https://mykee1-cleainput-ai-engine.hf.space/predict"; 
+const BACKEND_URL = "https://mykee1-cleainput-ai-engine.hf.space/api/predict/"; 
 
 // ── Toast ──
 function showToast(msg) {
@@ -726,6 +726,7 @@ async function createProject() {
   showToast('Project "' + name + '" created');
 }
 
+// ── Drawer Add project item mapping state ──
 function addProjectToDrawer(id, name) {
   var list = document.getElementById('projectsList');
   var placeholder = list.querySelector('[data-placeholder-item]');
@@ -906,6 +907,9 @@ async function submitUserPrompt() {
   updateSendBtn();
 
   try {
+    // Generate an automatic state execution tracking string required by Hugging Face space proxies
+    const sessionHash = Math.random().toString(36).substring(2);
+
     const response = await fetch(BACKEND_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -914,7 +918,8 @@ async function submitUserPrompt() {
           promptText,
           capturedImage || "",
           currentProjectContext ? currentProjectContext.instructions : ""
-        ]
+        ],
+        session_hash: sessionHash
       })
     });
 
@@ -1131,4 +1136,6 @@ document.addEventListener("DOMContentLoaded", function() {
 </script>
 </body>
 </html>
+
+
 
