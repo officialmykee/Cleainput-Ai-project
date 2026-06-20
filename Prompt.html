@@ -7,7 +7,7 @@
 <script>
   // Auth enforcement guard: Redirect unauthenticated users immediately
   (function() {
-    var SESSION_KEY = 'cleainput_session';
+    var SESSION_KEY = 'cleaninput_session';
     var rawSession = localStorage.getItem(SESSION_KEY) || sessionStorage.getItem(SESSION_KEY);
     if (!rawSession) {
       window.location.replace("https://cleainput-ai-project.pages.dev/");
@@ -217,8 +217,8 @@ body { display: flex; flex-direction: column; align-items: center; height: 100dv
 .thinking-dots span:nth-child(3) { animation-delay: 0.4s; }
 @keyframes dotPulse { 0%, 60%, 100% { opacity: 0.2; transform: scale(1); } 30% { opacity: 1; transform: scale(1.35); } }
 .thought-lines { display: flex; flex-direction: column; gap: 7px; }
-.thought-line { height: 9px; border-radius: 6px; background: linear-gradient(90deg, #1a1a1a 25%, #2a2a2a 50%, #1a1a1a 75%); background-size: 200% 100%; animation: shimmer 1.8s ease-in-out infinite; }
-.thought-line:nth-child(1) { width: 88%; } .thought-line:nth-child(2) { width: 72%; animation-delay: 0.15s; }
+.thought-lines .thought-line { height: 9px; border-radius: 6px; background: linear-gradient(90deg, #1a1a1a 25%, #2a2a2a 50%, #1a1a1a 75%); background-size: 200% 100%; animation: shimmer 1.8s ease-in-out infinite; }
+.thought-lines .thought-line:nth-child(1) { width: 88%; } .thought-lines .thought-line:nth-child(2) { width: 72%; animation-delay: 0.15s; }
 @keyframes shimmer { 0% { background-position: 200% center; } 100% { background-position: -200% center; } }
 
 /* ── Empty state ── */
@@ -701,7 +701,7 @@ async function createProject() {
   saveSessionCache();
 
   // BACKGROUND SYNC: Push new project structure to Cloudflare D1
-  const sessionData = JSON.parse(localStorage.getItem('cleainput_session') || sessionStorage.getItem('cleainput_session') || '{}');
+  const sessionData = JSON.parse(localStorage.getItem('cleaninput_session') || sessionStorage.getItem('cleaninput_session') || '{}');
   const userId = sessionData.username || 'guest';
   
   try {
@@ -833,6 +833,7 @@ function switchTab(btn, tab) {
   }
 }
 
+// ── Drawer control handlers ──
 function openDrawer()  { document.getElementById('drawer').classList.add('open'); document.getElementById('drawerOverlay').classList.add('open'); }
 function closeDrawer() { document.getElementById('drawer').classList.remove('open'); document.getElementById('drawerOverlay').classList.remove('open'); }
 
@@ -896,7 +897,7 @@ async function submitUserPrompt() {
   thread.appendChild(aiRow);
   thread.scrollTop = thread.scrollHeight;
 
-  const sessionData = JSON.parse(localStorage.getItem('cleainput_session') || sessionStorage.getItem('cleainput_session') || '{}');
+  const sessionData = JSON.parse(localStorage.getItem('cleaninput_session') || sessionStorage.getItem('cleaninput_session') || '{}');
   const userId = sessionData.username || 'guest';
   
   const compressedUserPrompt = DataPacker.compress(promptText);
@@ -1028,7 +1029,7 @@ function clearPreviewCanvas() {
   if (!container) return;
   
   var displayName = 'Guest';
-  var sessionData = localStorage.getItem('cleainput_session') || sessionStorage.getItem('cleainput_session');
+  var sessionData = localStorage.getItem('cleaninput_session') || sessionStorage.getItem('cleaninput_session');
   if (sessionData) {
     try {
       var s = JSON.parse(sessionData);
@@ -1101,7 +1102,7 @@ function escapeHtml(str){ return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').
 
 // ── Profile Loader Logic ──
 document.addEventListener("DOMContentLoaded", function() {
-  var SESSION_KEY = 'cleainput_session';
+  var SESSION_KEY = 'cleaninput_session';
   var raw = localStorage.getItem(SESSION_KEY) || sessionStorage.getItem(SESSION_KEY);
   var session = null;
   try { session = raw ? JSON.parse(raw) : null; } catch(e) { session = null; }
@@ -1136,6 +1137,5 @@ document.addEventListener("DOMContentLoaded", function() {
 </script>
 </body>
 </html>
-
 
 
