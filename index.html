@@ -764,7 +764,7 @@ function switchView(view) {
 /* FIXED DOMAIN ALIGNMENT MATCHING PUBLIC ACCESS NODE GATEWAY */
 window.CF_WORKER_URL = 'https://mykee1-cleainput-ai-engine.hf.space';
 /* TARGET SYSTEM ROUTING HOOK FOR REDIRECT ENGINE */
-window.REDIRECT_TARGET_URL = 'https://cleainput.officialmykeee.workers.dev/Prompt';
+window.REDIRECT_TARGET_URL = 'https://cleainput-ai-project.pages.dev/Prompt';
 
 const input     = document.querySelector('.composer-input');
 const sendBtn   = document.getElementById('sendBtn');
@@ -965,7 +965,10 @@ async function handleLogin(event) {
 
 (function init() {
     const session = loadSession();
-    if (session) updateHeaderUI(session);
+    if (session) {
+        updateHeaderUI(session);
+        window.location.href = window.REDIRECT_TARGET_URL;
+    }
 })();
 </script>
 
@@ -992,4 +995,5 @@ async function handleLogin(event) {
 </script>
 </body>
 </html>
+
 
