@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cleainput Auxesis V1 Header</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f8f8f6;
+      display: flex;
+      flex-direction: column;
+      min-height: 100dvh;
+    }
+
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 20px; background: #f8f8f6; position: relative; z-index: 100;
+    }
+
+    .hamburger { display: flex; flex-direction: column; gap: 5px; cursor: pointer; padding: 2px; }
+    .hamburger span { display: block; width: 20px; height: 2px; background: #555; border-radius: 1px; }
+
+    .title-wrapper {
+      display: flex; align-items: center; gap: 6px; cursor: pointer;
+      position: absolute; left: 50%; transform: translateX(-50%);
+      user-select: none;
+    }
+
+    .title { font-size: 17px; font-weight: 600; color: #222; letter-spacing: -0.2px; }
+
+    .chevron {
+      width: 10px; height: 10px;
+      border-right: 2px solid #777; border-bottom: 2px solid #777;
+      transform: rotate(45deg) translateY(-2px);
+      transition: transform 0.25s ease;
+    }
+    .chevron.open { transform: rotate(-135deg) translateY(-2px); }
+
+    .spacer { width: 24px; }
+
+    /* Dropdown */
+    .dropdown {
+      position: absolute;
+      top: 54px; left: 50%;
+      transform: translateX(-50%) scaleY(0.95);
+      transform-origin: top center;
+      width: 88%; max-width: 360px;
+      background: #fff; border-radius: 18px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+      z-index: 200; overflow: hidden;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+    .dropdown.open { opacity: 1; pointer-events: all; transform: translateX(-50%) scaleY(1); }
+
+    .model-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 20px; cursor: pointer; transition: background 0.15s;
+    }
+    .model-item:hover { background: #f5f5f3; }
+    .model-item + .model-item { border-top: 1px solid #f0f0ee; }
+
+    .model-info { display: flex; flex-direction: column; gap: 3px; }
+    .model-name-row { display: flex; align-items: center; gap: 8px; }
+    .model-name { font-size: 15px; font-weight: 600; color: #1a1a1a; }
+
+    .mdl-badge { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 20px; }
+    .badge-elite { background: #fff0e0; color: #d4720a; }
+    .badge-plus  { background: #e8f0ff; color: #3a6fd8; }
+    .badge-free  { background: #edf7ed; color: #2e7d32; }
+
+    .model-desc { font-size: 13px; color: #888; line-height: 1.4; }
+
+    /* Chat area */
+    .chat-area { padding: 16px; display: flex; flex-direction: column; gap: 14px; flex: 1; }
+
+    .bubble-user {
+      align-self: flex-end;
+      background: #ffffff; color: #333; font-size: 16px;
+      padding: 14px 18px; border-radius: 18px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08); max-width: 75%;
+    }
+
+    .thinking-row { align-self: flex-start; display: flex; align-items: center; gap: 6px; padding: 4px 2px; }
+    .thinking-label { font-size: 15px; color: #999; }
+
+    .dots { display: flex; align-items: center; gap: 3px; transition: opacity 0.3s ease; }
+    .dots.hidden { opacity: 0; pointer-events: none; }
+    .dots span {
+      display: inline-block; width: 4px; height: 4px; border-radius: 50%;
+      background: #999; animation: bounce 1.2s infinite ease-in-out;
+    }
+    .dots span:nth-child(1) { animation-delay: 0s; }
+    .dots span:nth-child(2) { animation-delay: 0.2s; }
+    .dots span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes bounce {
+      0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+      30% { transform: translateY(-4px); opacity: 1; }
+    }
+
+    .ai-reply {
+      align-self: flex-start; color: #333; font-size: 16px;
+      max-width: 85%; line-height: 1.5;
+      opacity: 0; transform: translateY(6px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+    .ai-reply.visible { opacity: 1; transform: translateY(0); }
+
+    .action-bar {
+      align-self: flex-start; display: flex; align-items: center; gap: 18px; padding: 2px;
+      opacity: 0; transform: translateY(4px);
+      transition: opacity 0.4s ease 0.2s, transform 0.4s ease 0.2s;
+    }
+    .action-bar.visible { opacity: 1; transform: translateY(0); }
+
+    .action-bar button {
+      background: none; border: none; cursor: pointer; padding: 4px;
+      color: #888; display: flex; align-items: center; justify-content: center;
+      transition: color 0.2s, transform 0.15s; border-radius: 6px;
+    }
+    .action-bar button:hover:not(:disabled) { color: #333; }
+    .action-bar button:active:not(:disabled) { transform: scale(0.9); }
+    .action-bar button svg {
+      width: 18px; height: 18px; stroke: currentColor; fill: none;
+      stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    .action-bar button.active-like { color: #2a9d5c; }
+    .action-bar button.active-dislike { color: #e05252; }
+    .action-bar button.active-copy { color: #2a9d5c; }
+    .action-bar button.active-copy svg { stroke-width: 2.8; }
+
+    /* ── Composer (from Cleaninput) ── */
+    .composer-wrapper {
+      width: 100%; padding: 8px 0 20px;
+      display: flex; justify-content: center;
+      background: linear-gradient(to bottom, rgba(248,248,246,0) 0%, rgba(248,248,246,0.96) 30%, #f8f8f6 100%);
+      z-index: 100; flex-shrink: 0;
+    }
+
+    .composer {
+      background: #fff;
+      border-radius: 20px;
+      padding: 18px 18px 14px;
+      width: 100%; max-width: 620px;
+      margin: 0 16px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04);
+      border: 1px solid rgba(0,0,0,0.08);
+    }
+
+    .composer-input {
+      width: 100%; min-height: 46px;
+      font-family: 'Inter', sans-serif;
+      font-size: 16px; color: #111;
+      outline: none; line-height: 1.6;
+      caret-color: #555;
+      word-break: break-word;
+    }
+
+    .composer-input:empty::before {
+      content: attr(data-placeholder);
+      color: #aaa; pointer-events: none;
+    }
+
+    .composer-input.tw-active:empty::before {
+      content: attr(data-tw);
+      color: #aaa; pointer-events: none;
+      border-right: 2px solid #555;
+      animation: twCaret 0.7s step-end infinite;
+      padding-right: 2px;
+    }
+
+    @keyframes twCaret {
+      0%, 100% { border-color: #555; }
+      50% { border-color: transparent; }
+    }
+
+    .composer-bar {
+      display: flex; align-items: center;
+      justify-content: space-between; margin-top: 12px;
+    }
+
+    .composer-left { display: flex; gap: 8px; align-items: center; }
+
+    .icon-btn {
+      width: 36px; height: 36px; border-radius: 50%; border: none;
+      background: #f0f0ee; color: #888;
+      display: inline-flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: background .15s, transform 0.1s;
+      flex-shrink: 0; appearance: none; position: relative;
+    }
+    .icon-btn:hover { background: #e4e4e2; color: #555; }
+    .icon-btn:active { transform: scale(0.95); }
+    .icon-btn svg { width: 16px; height: 16px; }
+    .icon-btn.send-active { background: #222; color: #fff; }
+    .icon-btn.send-active:hover { background: #111; }
+
+    .composer-badge {
+      border: 1.5px solid #e0e0de; border-radius: 999px;
+      padding: 5px 14px; font-size: 12px; font-weight: 500;
+      color: #aaa; letter-spacing: .02em;
+      display: inline-flex; align-items: center;
+    }
+
+    .upload-preview-badge {
+      display: inline-flex; align-items: center;
+      background: #f5f5f3; border: 1px solid #ddd;
+      border-radius: 8px; padding: 4px 8px; margin-top: 8px;
+      font-size: 12px; color: #555; gap: 6px;
+    }
+    .upload-preview-badge span { max-width: 120px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .upload-preview-badge .close-upload { cursor: pointer; color: #ef4444; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="hamburger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </div>
+    <div class="title-wrapper" onclick="toggleDropdown()">
+      <span class="title" id="headerTitle">Cleainput Auxesis V1</span>
+      <div class="chevron" id="chevron"></div>
+    </div>
+    <div class="spacer"></div>
+  </header>
+
+  <div class="dropdown" id="dropdown">
+    <div class="model-item" onclick="selectModel('Cleainput Auxesis Ultra')">
+      <div class="model-info">
+        <div class="model-name-row">
+          <span class="model-name">Cleainput Auxesis Ultra</span>
+          <span class="mdl-badge badge-elite">Elite</span>
+        </div>
+        <span class="model-desc">Maximum intelligence for the most demanding tasks.</span>
+      </div>
+    </div>
+    <div class="model-item" onclick="selectModel('Cleainput Auxesis V2')">
+      <div class="model-info">
+        <div class="model-name-row">
+          <span class="model-name">Cleainput Auxesis V2</span>
+          <span class="mdl-badge badge-plus">Plus</span>
+        </div>
+        <span class="model-desc">Powerful reasoning for complex, multi-step tasks.</span>
+      </div>
+    </div>
+    <div class="model-item" onclick="selectModel('Cleainput Auxesis V1')">
+      <div class="model-info">
+        <div class="model-name-row">
+          <span class="model-name">Cleainput Auxesis V1</span>
+          <span class="mdl-badge badge-free">Free</span>
+        </div>
+        <span class="model-desc">Fast and efficient for everyday conversations.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="chat-area">
+    <div class="bubble-user">How are you</div>
+
+    <div class="thinking-row">
+      <span class="thinking-label" id="status">Reading</span>
+      <div class="dots" id="dots">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+
+    <div class="ai-reply" id="reply">
+      I'm doing great, thank you for asking! What can I do for you today?
+    </div>
+
+    <div class="action-bar" id="actions">
+      <button title="Cannot retry" disabled style="opacity:0.3; cursor:not-allowed;">
+        <svg viewBox="0 0 24 24">
+          <path d="M3 12a9 9 0 1 0 9-9 9 9 0 0 0-6.36 2.64L3 8"/>
+          <polyline points="3 3 3 8 8 8"/>
+        </svg>
+      </button>
+      <button title="Like" id="btnLike" onclick="handleLike()">
+        <svg viewBox="0 0 24 24">
+          <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/>
+          <path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/>
+        </svg>
+      </button>
+      <button title="Dislike" id="btnDislike" onclick="handleDislike()">
+        <svg viewBox="0 0 24 24">
+          <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z"/>
+          <path d="M17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/>
+        </svg>
+      </button>
+      <button title="Copy" id="btnCopy" onclick="handleCopy(this)">
+        <svg viewBox="0 0 24 24">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Composer (from Cleaninput) ── -->
+  <div class="composer-wrapper">
+    <div class="composer">
+      <input type="file" id="imageAttachmentInput" accept="image/*" style="display:none;" onchange="handleImageSelected(this)">
+      <div class="composer-input" id="composerInput" contenteditable="true" data-placeholder="Describe the app you want to build..."></div>
+      <div id="attachmentArea"></div>
+      <div class="composer-bar">
+        <div class="composer-left">
+          <button class="icon-btn" title="Attach image" onclick="document.getElementById('imageAttachmentInput').click()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/>
+              <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/>
+            </svg>
+          </button>
+          <span class="composer-badge">auxesis v1</span>
+        </div>
+        <button class="icon-btn" id="micSendBtn" title="Send" onclick="handleSend()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="19" x2="12" y2="5"/>
+            <line x1="6" y1="11" x2="12" y2="5"/>
+            <line x1="18" y1="11" x2="12" y2="5"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ── Thinking stages ──
+    const stages = ['Reading', 'Understanding', 'Executed'];
+    let index = 0;
+    const label = document.getElementById('status');
+    const dots = document.getElementById('dots');
+    const reply = document.getElementById('reply');
+    const actions = document.getElementById('actions');
+
+    const interval = setInterval(() => {
+      index++;
+      if (index < stages.length) label.textContent = stages[index];
+      if (index >= stages.length - 1) {
+        clearInterval(interval);
+        dots.classList.add('hidden');
+        setTimeout(() => {
+          reply.classList.add('visible');
+          actions.classList.add('visible');
+        }, 400);
+      }
+    }, 2000);
+
+    // ── Dropdown ──
+    let dropdownOpen = false;
+
+    function toggleDropdown() {
+      dropdownOpen = !dropdownOpen;
+      document.getElementById('dropdown').classList.toggle('open', dropdownOpen);
+      document.getElementById('chevron').classList.toggle('open', dropdownOpen);
+    }
+
+    function selectModel(name) {
+      document.getElementById('headerTitle').textContent = name;
+      toggleDropdown();
+    }
+
+    document.addEventListener('click', (e) => {
+      if (dropdownOpen && !e.target.closest('.title-wrapper') && !e.target.closest('.dropdown')) {
+        toggleDropdown();
+      }
+    });
+
+    // ── Action bar ──
+    let liked = false, disliked = false;
+
+    function handleLike() {
+      liked = !liked; disliked = false;
+      document.getElementById('btnLike').classList.toggle('active-like', liked);
+      document.getElementById('btnDislike').classList.remove('active-dislike');
+    }
+
+    function handleDislike() {
+      disliked = !disliked; liked = false;
+      document.getElementById('btnDislike').classList.toggle('active-dislike', disliked);
+      document.getElementById('btnLike').classList.remove('active-like');
+    }
+
+    function handleCopy(btn) {
+      const text = document.getElementById('reply').textContent.trim();
+      navigator.clipboard.writeText(text).then(() => {
+        btn.classList.add('active-copy');
+        setTimeout(() => btn.classList.remove('active-copy'), 2000);
+      });
+    }
+
+    // ── Composer logic ──
+    var base64ImageData = null;
+    var composerInput = document.getElementById('composerInput');
+    var sendBtn = document.getElementById('micSendBtn');
+
+    function updateSendBtn() {
+      sendBtn.classList.toggle('send-active', composerInput.innerText.trim().length > 0 || base64ImageData !== null);
+    }
+
+    function handleSend() {
+      if (composerInput.innerText.trim().length > 0 || base64ImageData !== null) {
+        // hook into your send logic here
+        composerInput.innerHTML = '';
+        clearAttachedImage();
+        updateSendBtn();
+      }
+    }
+
+    composerInput.addEventListener('input', function() {
+      if (composerInput.innerText.trim() === '') composerInput.innerHTML = '';
+      updateSendBtn();
+    });
+
+    composerInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
+    });
+
+    function handleImageSelected(inputEl) {
+      var file = inputEl.files[0]; if (!file) return;
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        base64ImageData = e.target.result;
+        document.getElementById('attachmentArea').innerHTML =
+          '<div class="upload-preview-badge"><span>📎 ' + file.name + '</span><div class="close-upload" onclick="clearAttachedImage()">✕</div></div>';
+        updateSendBtn();
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function clearAttachedImage() {
+      base64ImageData = null;
+      document.getElementById('imageAttachmentInput').value = '';
+      document.getElementById('attachmentArea').innerHTML = '';
+      updateSendBtn();
+    }
+
+    // ── Typewriter animation ──
+    (function() {
+      var phrases = [
+        "Describe the app you want to build...",
+        "Build a fitness tracker app...",
+        "Create a recipe sharing app...",
+        "Make a habit tracking app...",
+        "Design a note-taking app..."
+      ];
+      var el = document.getElementById('composerInput');
+      var phraseIdx = 0, charIdx = 0, deleting = false, pauseTicks = 0, running = false;
+      var PT = 28, PD = 6;
+
+      function tick() {
+        if (el.innerText.trim() !== '' || document.activeElement === el) { running = false; return; }
+        var phrase = phrases[phraseIdx];
+        if (!deleting) {
+          charIdx++;
+          el.setAttribute('data-tw', phrase.substring(0, charIdx));
+          if (charIdx === phrase.length) { deleting = true; pauseTicks = PT; }
+        } else {
+          if (pauseTicks > 0) { pauseTicks--; }
+          else {
+            charIdx--;
+            el.setAttribute('data-tw', phrase.substring(0, charIdx));
+            if (charIdx === 0) { deleting = false; pauseTicks = PD; phraseIdx = (phraseIdx + 1) % phrases.length; }
+          }
+        }
+        setTimeout(tick, deleting ? (pauseTicks > 0 ? 60 : 45) : 68);
+      }
+
+      function startTw() {
+        if (running) return; running = true;
+        charIdx = 0; deleting = false; pauseTicks = 0;
+        el.setAttribute('data-tw', '');
+        el.classList.add('tw-active');
+        setTimeout(tick, 400);
+      }
+
+      el.addEventListener('focus', function() { running = false; el.classList.remove('tw-active'); });
+      el.addEventListener('blur', function() { if (el.innerText.trim() === '') startTw(); });
+      startTw();
+    })();
+  </script>
+</body>
+</html>
+
